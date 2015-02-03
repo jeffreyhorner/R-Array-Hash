@@ -106,9 +106,19 @@ svnonly:
 	@if test ! -f "$(srcdir)/doc/FAQ" || test -f non-tarball ; then \
 	  (cd doc/manual && $(MAKE) front-matter html-non-svn) ; \
 	  touch non-tarball ; \
-	  (cd $(srcdir); LC_ALL=C TZ=GMT $(GIT) svn info || $(ECHO) "Revision: -99") 2> /dev/null \
-	    | sed -n -e '/^Revision/p' -e '/^Last Changed Date/'p \
-	    | cut -d' ' -f1,2,3,4 > SVN-REVISION-tmp ; \
+	  if [ -d "$(top_builddir)/.git" ]; then \
+	      echo -n 'Revision: ' > SVN-REVISION-tmp; \
+	      git log --format=%B -n 1 \
+	        | grep "^git-svn-id"    \
+	        | sed -E 's/^ *git-svn-id: https:\/\/svn.r-project.org\/R\/[^@]*@([0-9]+).*/\1/' \
+	        >> SVN-REVISION-tmp ;\
+	      echo -n 'Last Changed Date: ' >>  SVN-REVISION-tmp ;\
+	      git log -1 --pretty=format:"%ad" --date=iso | cut -d' ' -f1 >> SVN-REVISION-tmp ;\
+	  else \
+	   (cd $(srcdir); LC_ALL=C TZ=GMT svn info || $(ECHO) "Revision: -99") 2> /dev/null \
+        | sed -n -e '/^Revision/p' -e '/^Last Changed Date/'p \
+        | cut -d' ' -f1,2,3,4 > SVN-REVISION-tmp ; \
+	  fi; \
 	  if test "`cat SVN-REVISION-tmp`" = "Revision: -99"; then \
 	    $(ECHO) "ERROR: not an svn checkout"; \
 	    exit 1; \
