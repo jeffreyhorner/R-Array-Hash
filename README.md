@@ -1,9 +1,9 @@
 # R with Judy Arrays
 
-This project replaces R's hash tables in environments, global
-variable cache, and global string hash table with Judy Arrays. The
-intention is to evaluate run-time performance.  For an explanation of
-Judy arrays, see http://judy.sourceforge.net/.
+This project replaces R's hash tables for environments and the global
+variable cache with JudyL Arrays. The intention is to evaluate
+run-time performance.  For an explanation of Judy arrays, see
+http://judy.sourceforge.net/.
 
 # Configure and Build
 
@@ -25,7 +25,7 @@ will want to update those.)
   make
   ```
 
-An alternative way to configure for debugging and development is:
+An alternative for debugging and development is:
 
   ```
   CC="ccache gcc"
@@ -41,7 +41,7 @@ An alternative way to configure for debugging and development is:
   make
   ```
 
-For speed:
+For speed (copied from ubuntu's R package):
   ```
     CC="gcc -std=gnu99" \
     CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
@@ -57,7 +57,6 @@ For speed:
     ./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
     --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
     --enable-memory-profiling \
-    --build x86_64-linux-gnu build_alias=x86_64-linux-gnu LIBnn=lib
+    --build x86_64-linux-gnu build_alias=x86_64-linux-gnu
   make -j4
   ```
-
