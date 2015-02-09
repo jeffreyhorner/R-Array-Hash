@@ -1408,13 +1408,13 @@ static SEXP get_package_CEntry_table(const char *package)
     SEXP penv, pname;
 
     if (CEntryTable == NULL) {
-	CEntryTable = R_NewHashedEnv(R_NilValue, ScalarInteger(0));
+	CEntryTable = R_NewHashedEnv(R_NilValue);
 	R_PreserveObject(CEntryTable);
     }
     pname = install(package);
     penv = findVarInFrame(CEntryTable, pname);
     if (penv == R_UnboundValue) {
-	penv = R_NewHashedEnv(R_NilValue, ScalarInteger(0));
+	penv = R_NewHashedEnv(R_NilValue);
 	defineVar(pname, penv, CEntryTable);
     }
     return penv;

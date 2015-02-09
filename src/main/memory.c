@@ -678,6 +678,16 @@ static R_size_t R_NodesInUse = 0;
   case EXTPTRSXP: \
     dc__action__(EXTPTR_PROT(__n__), dc__extra__); \
     dc__action__(EXTPTR_TAG(__n__), dc__extra__); \
+    if (IS_ENVHASHTABLE(__n__)) { \
+	int found; \
+	R_EnvHashCursor cursor; \
+	R_EnvHashInitCursor(&cursor, __n__); \
+	SEXP tmp_s=R_EnvHashGetFirstBinding(&cursor, &found); \
+	while (found){ \
+	    dc__action__(tmp_s, dc__extra__); \
+	    tmp_s = R_EnvHashGetNextBinding(&cursor, &found); \
+	} \
+    } \
     break; \
   FREE_FORWARD_CASE \
   default: \
@@ -1154,6 +1164,13 @@ static void old_to_new(SEXP x, SEXP y)
 #define CHECK_OLD_TO_NEW(x,y) do { \
   if (NODE_IS_OLDER(CHK(x), CHK(y))) old_to_new(x,y);  } while (0)
 
+/* R_EnforceWriteBarrier - exported function to allow experimentation outside
+   of memory.c */
+
+void R_EnforceWriteBarrier(SEXP x, SEXP old, SEXP new){
+    FIX_REFCNT(x, old, new);
+    CHECK_OLD_TO_NEW(x, new);    
+}
 
 /* Node Sorting.  SortNodes attempts to improve locality of reference
    by rearranging the free list to place nodes on the same place page

@@ -1011,6 +1011,8 @@ static void WriteItem (SEXP s, SEXP ref_table, R_outpstream_t stream)
 	    OutInteger(stream, ENVSXP);
 	    OutInteger(stream, R_EnvironmentIsLocked(s) ? 1 : 0);
 	    WriteItem(ENCLOS(s), ref_table, stream);
+	    if (HASHTAB(s) != R_NilValue && IS_ENVHASHTABLE(HASHTAB(s)))
+		R_EnvUnHashFrame(s);
 	    WriteItem(FRAME(s), ref_table, stream);
 	    WriteItem(HASHTAB(s), ref_table, stream);
 	    WriteItem(ATTRIB(s), ref_table, stream);

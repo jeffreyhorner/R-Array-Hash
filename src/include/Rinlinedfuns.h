@@ -79,18 +79,24 @@ extern SEXP* R_PPStack;
 
 INLINE_FUN SEXP protect(SEXP s)
 {
+#ifdef PROTECT_PARANOID
+    if (R_PPStackTop < R_PPStackSize && R_PPStackTop >=0)
+	R_PPStack[R_PPStackTop++] = s;
+    else R_signal_protect_error();
+#else
     if (R_PPStackTop < R_PPStackSize)
 	R_PPStack[R_PPStackTop++] = s;
     else R_signal_protect_error();
+#endif
     return s;
 }
 
 INLINE_FUN void unprotect(int l)
 {
 #ifdef PROTECT_PARANOID
-    if (R_PPStackTop >=  l)
-	R_PPStackTop -= l;
-    else R_signal_unprotect_error();
+    R_PPStackTop -= l;
+    if (R_PPStackTop < 0)
+	R_signal_unprotect_error();
 #else
     R_PPStackTop -= l;
 #endif

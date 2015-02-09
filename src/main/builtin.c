@@ -336,7 +336,7 @@ SEXP attribute_hidden do_newenv(SEXP call, SEXP op, SEXP args, SEXP rho)
 	PROTECT(size = coerceVector(CAR(args), INTSXP));
 	if (INTEGER(size)[0] == NA_INTEGER)
 	    INTEGER(size)[0] = 0; /* so it will use the internal default */
-	ans = R_NewHashedEnv(enclos, size);
+	ans = R_NewHashedEnv(enclos);
 	UNPROTECT(1);
     } else
 	ans = NewEnvironment(R_NilValue, R_NilValue, enclos);
