@@ -682,10 +682,13 @@ static R_size_t R_NodesInUse = 0;
 	int found; \
 	R_EnvHashCursor cursor; \
 	R_EnvHashInitCursor(&cursor, __n__); \
-	SEXP tmp_s=R_EnvHashGetFirstBinding(&cursor, &found); \
+	R_EnvHashCursorNext(&cursor, &found); \
 	while (found){ \
-	    dc__action__(tmp_s, dc__extra__); \
-	    tmp_s = R_EnvHashGetNextBinding(&cursor, &found); \
+	    SEXP symbol = cursor.elem->symbol; \
+	    SEXP value = cursor.elem->value; \
+	    dc__action__(symbol, dc__extra__); \
+	    dc__action__(value, dc__extra__); \
+	    R_EnvHashCursorNext(&cursor, &found); \
 	} \
     } \
     break; \
@@ -746,7 +749,7 @@ static R_size_t R_NodesInUse = 0;
 
 
 /* Debugging Routines. */
-
+/*#define DEBUG_GC*/
 #ifdef DEBUG_GC
 static void CheckNodeGeneration(SEXP x, int g)
 {
@@ -771,7 +774,7 @@ static void DEBUG_CHECK_NODE_COUNTS(char *where)
 	}
 	for (gen = 0, OldCount = 0, OldToNewCount = 0;
 	     gen < NUM_OLD_GENERATIONS;
-	     gen++) {
+	     gen++, OldCount = 0, OldToNewCount = 0) {
 	    for (s = NEXT_NODE(R_GenHeap[i].Old[gen]);
 		 s != R_GenHeap[i].Old[gen];
 		 s = NEXT_NODE(s)) {
@@ -791,11 +794,11 @@ static void DEBUG_CHECK_NODE_COUNTS(char *where)
 		if (gen != NODE_GENERATION(s))
 		    REprintf("Inconsistent node generation\n");
 	    }
+	REprintf("Class/Gen: %d/%d, New = %d, Old/delta = %d/%d, OldToNew = %d, Total = %d\n",
+		 i,gen,
+		 NewCount, OldCount, (OldCount+OldToNewCount) - R_GenHeap[i].OldCount[gen],
+		 OldToNewCount, NewCount + OldCount + OldToNewCount);
 	}
-	REprintf("Class: %d, New = %d, Old = %d, OldToNew = %d, Total = %d\n",
-		 i,
-		 NewCount, OldCount, OldToNewCount,
-		 NewCount + OldCount + OldToNewCount);
     }
 }
 

@@ -432,6 +432,31 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
 #define ENVFLAGS(x)	((x)->sxpinfo.gp)	/* for environments */
 #define SET_ENVFLAGS(x,v)	(((x)->sxpinfo.gp)=(v))
 
+/* Array Hash data structures and declarations */
+#define ENVHASHTABLE_MASK (1<<2)
+#define IS_ENVHASHTABLE(x) ((x)->sxpinfo.gp & ENVHASHTABLE_MASK)
+#define SET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) |= ENVHASHTABLE_MASK)
+#define UNSET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) &= ~ENVHASHTABLE_MASK)
+#define HASH_BINDING_MASK (1<<13)
+#define IS_HASH_BINDING(b) ((b)->sxpinfo.gp & HASH_BINDING_MASK)
+#define SET_HASH_BINDING_BIT(b) ((b)->sxpinfo.gp |= HASH_BINDING_MASK)
+
+void R_EnforceWriteBarrier(SEXP, SEXP, SEXP);
+typedef struct darray_elem_t {
+    struct sxpinfo_struct sxpinfo;
+    SEXP symbol;
+    SEXP value;
+} darray_elem;
+typedef struct { // need something better here
+    SEXP table;
+    darray_elem *elem;
+    unsigned int slot;
+    int datum;
+} R_EnvHashCursor;
+void R_EnvHashInitCursor(R_EnvHashCursor *, SEXP);
+void R_EnvHashCursorNext(R_EnvHashCursor *, int *);
+void R_EnvUnHashFrame(SEXP);
+
 #else /* not USE_RINTERNALS */
 // ======================= not USE_RINTERNALS section
 

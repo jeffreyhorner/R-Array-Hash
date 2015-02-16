@@ -19,9 +19,10 @@ For debugging and development:
   CXXFLAGS="-ggdb -pipe -Wall -pedantic"          \
   FC="ccache gfortran"                            \
   F77="ccache gfortran"                           \
+  LIBS="-lbfd" \
   ./configure --enable-memory-profiling --without-recommended-packages \
     --with-valgrind-instrumentation=2   
-  make
+  make -j4
   ```
 
 For speed (copied from ubuntu's R package):

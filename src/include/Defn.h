@@ -115,7 +115,6 @@ extern0 SEXP	R_StringHash;       /* Global hash of CHARSXPs */
 #define CACHED_MASK (1<<5)
 #define ASCII_MASK (1<<6)
 #define HASHASH_MASK 1
-#define ENVHASHTABLE_MASK (1<<2)
 /**** HASHASH uses the first bit -- see HASHASH_MASK defined below */
 
 #ifdef USE_RINTERNALS
@@ -394,8 +393,6 @@ typedef struct {
 #define SET_HASHASH(x,v) ((v) ? (((x)->sxpinfo.gp) |= HASHASH_MASK) : \
 			  (((x)->sxpinfo.gp) &= (~HASHASH_MASK)))
 #define SET_HASHVALUE(x,v) SET_TRUELENGTH(x, v)
-#define IS_ENVHASHTABLE(x) ((x)->sxpinfo.gp & ENVHASHTABLE_MASK)
-#define SET_IS_ENVHASHTABLE(x) (((x)->sxpinfo.gp) |= ENVHASHTABLE_MASK)
 
 /* Vector Heap Structure */
 typedef struct {
@@ -1141,15 +1138,6 @@ void process_system_Renviron(void);
 void process_user_Renviron(void);
 SEXP promiseArgs(SEXP, SEXP);
 void Rcons_vprintf(const char *, va_list);
-void R_EnforceWriteBarrier(SEXP, SEXP, SEXP);
-typedef struct {
-    SEXP table;
-    unsigned long cursor; // need something better here
-} R_EnvHashCursor;
-void R_EnvHashInitCursor(R_EnvHashCursor *, SEXP);
-SEXP R_EnvHashGetFirstBinding(R_EnvHashCursor *, int *);
-SEXP R_EnvHashGetNextBinding(R_EnvHashCursor *, int *);
-void R_EnvUnHashFrame(SEXP);
 SEXP R_data_class(SEXP , Rboolean);
 SEXP R_data_class2(SEXP);
 char *R_LibraryFileName(const char *, char *, size_t);

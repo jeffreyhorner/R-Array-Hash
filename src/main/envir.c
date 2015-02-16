@@ -95,8 +95,6 @@
 #include <Internal.h>
 #include <R_ext/Callbacks.h>
 
-#include <Judy.h>
-
 #define FAST_BASE_CACHE_LOOKUP  /* Define to enable fast lookups of symbols */
                                 /*    in global cache from base environment */
 
@@ -179,36 +177,21 @@ Rboolean R_envHasNoSpecialSymbols (SEXP env)
 
   Hash Tables for environemnts, including the global cache
 
-  Uses JudyL Arrays: JRH
-
   The only non-static function is R_NewHashedEnv, which allows code to
   request a hashed environment.  All others are static to allow
   internal changes of implementation without affecting client code.
 */
 
-#define JUDY_PJERR_TEST(x) do { \
-    if (x == PJERR) \
-	errorcall(R_NilValue, "judy array memory exhausted (PJERR)"); \
-} while (0)
-#define JUDY_JERR_TEST(x) do { \
-    if (x == JERR) \
-	errorcall(R_NilValue, "judy array memory exhausted (JERR)"); \
-} while (0)
+#define EMBED_BREAKPOINT do {\
+    int *x = 0; \
+    *x = 1; \
+    do {\
+	*x = 4424234;\
+	x++;\
+    } while(1);\
+} while(0)
 
-/* From https://github.com/kmcallister/embedded-breakpoints with BSD style license */
-#if __SIZEOF_POINTER__ > 4
-#define EMBED_BREAKPOINT_PTR ".quad"
-#else
-#define EMBED_BREAKPOINT_PTR ".long"
-#endif
-
-#define EMBED_BREAKPOINT \
-    asm("0:"                              \
-        ".pushsection embed-breakpoints;" \
-        EMBED_BREAKPOINT_PTR " 0b;"       \
-        ".popsection;")
-
-#define EXTRACT_JUDY_TABLE(t,x) do { \
+#define EXTRACT_HASH_TABLE(t,x) do { \
     if (TYPEOF(x) != EXTPTRSXP){ \
 	printf("not an external pointer"); \
 	EMBED_BREAKPOINT; \
@@ -216,28 +199,116 @@ Rboolean R_envHasNoSpecialSymbols (SEXP env)
     t = R_ExternalPtrAddr(x); \
 } while(0)
 
-typedef struct judy_table_t {
-    Pvoid_t table;
-} judy_table;
+/* from code.google.com/p/smhasher/wiki/MurmurHash3 */
+#ifdef HAVE_INT64_T
+#define UINT_TYPE uint64_t
+static inline UINT_TYPE R_IntegerHash(UINT_TYPE k)
+{
+    k ^= k >> 33;
+    k *= 0xff51afd7ed558ccd;
+    k ^= k >> 33;
+    k *= 0xc4ceb9fe1a85ec53;
+    k ^= k >> 33;
+    return k;
+}
+#else
+#define UINT_TYPE uint32_t
+static inline UINT_TYPE R_IntegerHash(UINT_TYPE h)
+{
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
+}
+#endif
 
-static judy_table *NewJudyTable(){
-    judy_table *jtab = calloc(1, sizeof(struct judy_table_t));
-    if (!jtab)
-	errorcall(R_NilValue, "Cannot allocate memory for hash table");
-    return jtab;
+#define HASH_BINDING_VALUE(b) ((IS_ACTIVE_BINDING(b) ? getActiveValue(b->value) : b->value))
+#define HASH_SET_BINDING_VALUE(b,val) do { \
+  darray_elem *__b__ = (b); \
+  SEXP __val__ = (val); \
+  if (BINDING_IS_LOCKED(__b__)) \
+    error(_("cannot change value of locked binding for '%s'"), \
+	  CHAR(PRINTNAME(__b__->symbol))); \
+  if (IS_ACTIVE_BINDING(__b__)) \
+    setActiveValue(__b__->value, __val__); \
+  else \
+    __b__->value = __val__; \
+} while (0)
+
+typedef struct dynam_array_t {
+    unsigned int nelem;
+    darray_elem elem[];
+} dynam_array;
+
+typedef struct array_hash_t {
+    unsigned int size;
+    dynam_array *slot[];
+} array_hash;
+
+#define ARRAY_HASH_SIZE 1024
+static array_hash *NewArrayHash(){
+    array_hash *a = calloc(1, sizeof(*a) + sizeof(dynam_array *) * ARRAY_HASH_SIZE);
+    if (!a){
+	printf("Cannot allocate memory for hash table");
+	EMBED_BREAKPOINT;
+    }
+
+    a->size = ARRAY_HASH_SIZE;
+    return a;
 }
 
-static void DestroyJudyTable(SEXP x){
-    judy_table *jtab;
-    Word_t bytes;
-
-    if (TYPEOF(x) != EXTPTRSXP)
-	errorcall(R_NilValue,"not an external pointer (DestroyJudyTable)");
-    jtab = R_ExternalPtrAddr(x);
-    if (jtab) JLFA(bytes,jtab->table);
-    free(jtab);
+static void DestroyArrayHash(SEXP x){
+    array_hash *a;
+    EXTRACT_HASH_TABLE(a,x);
+    if (a){
+	int i;
+	for (i = 0; i < a->size; i++){
+	    if (a->slot[i] != NULL) free(a->slot[i]);
+	}
+	free(a);
+    }
+    R_ClearExternalPtr(x);
+    UNSET_ENVHASHTABLE_BIT(x);
 }
 
+static inline void InitElem(darray_elem *e, SEXP table, SEXP symbol, SEXP value){
+    e->symbol = symbol;
+    e->value = value;
+    e->sxpinfo.gp = 0;
+    R_EnforceWriteBarrier(table,R_NilValue,symbol);
+    R_EnforceWriteBarrier(table,R_NilValue,value);
+}
+
+/* Always create a new dynamic array with 1 key-value pair */
+static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
+    dynam_array *d = (dynam_array *)calloc(1,sizeof(dynam_array) + sizeof(darray_elem));
+    if (!d){
+	printf("Cannot allocate memory for hash table");
+	EMBED_BREAKPOINT;
+    }
+    d->nelem = 1;
+    InitElem(&d->elem[0], table, symbol, value);
+    return d; 
+}
+
+#define DYNAM_ARRAY_SIZE(d) (sizeof(dynam_array) + sizeof(darray_elem) * d->nelem)
+static dynam_array *AppendToDynamArray(dynam_array *d, SEXP table, SEXP symbol, SEXP value){
+    dynam_array *nd = (dynam_array *)realloc(d,DYNAM_ARRAY_SIZE(d) + sizeof(darray_elem));
+
+    if (!nd){
+	printf("Cannot allocate memory for hash table");
+	EMBED_BREAKPOINT;
+    }
+
+    nd->nelem += 1;
+    InitElem(&nd->elem[nd->nelem-1], table, symbol, value);
+
+    return nd;
+}
+
+#define ARRAY_SLOT(a,x) (R_IntegerHash((UINT_TYPE)x)) & (a->size - 1)
 /*----------------------------------------------------------------------
 
   R_EnvHashSet
@@ -249,68 +320,191 @@ static void DestroyJudyTable(SEXP x){
 static void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
 		      Rboolean frame_locked)
 {
-    SEXP binding;
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;    
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
     
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-    jindex = (Word_t)symbol;
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    if (jvalue != NULL){
-	binding = (SEXP)*jvalue;
-	R_EnforceWriteBarrier(table,R_NilValue,binding);
-	SET_BINDING_VALUE(binding, value);
-	SET_MISSING(binding, 0);
-	return;
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		HASH_SET_BINDING_VALUE(e,value);
+		R_EnforceWriteBarrier(table,R_NilValue,e->value);
+		return;
+	    }
+	}
     }
-    if (frame_locked)
-	error(_("cannot add bindings to a locked environment"));
 
-    JLI(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
+    if (frame_locked) \
+	error(_("cannot add bindings to a locked environment")); \
 
-    /* New symbol-value binding */
-    PROTECT(binding = CONS(value,R_NilValue));
-    R_EnforceWriteBarrier(table,R_NilValue,binding);
-    SET_TAG(binding, symbol);
-    UNPROTECT(1);
-    *jvalue = (Word_t) binding;
+    a->slot[i] = (a->slot[i]) ? 
+	AppendToDynamArray(a->slot[i], table, symbol, value) :
+	NewDynamArray(table, symbol, value);
 
     return;
 }
 
-/* For converting non-hashed environment with existing bindings */
-static void R_EnvHashSetBinding(SEXP binding, SEXP table)
+static int R_EnvHashSetIfExists(SEXP symbol, SEXP table, SEXP value)
 {
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;    
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
     
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-
-    jindex = (Word_t)TAG(binding);
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    if (jvalue != NULL){
-	*jvalue = (Word_t) binding;
-	R_EnforceWriteBarrier(table,R_NilValue,binding);
-	return;
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		HASH_SET_BINDING_VALUE(e,value);
+		R_EnforceWriteBarrier(table,R_NilValue,e->value);
+		return 1;
+	    }
+	}
     }
 
-    JLI(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
+    return 0;
+}
 
-    *jvalue = (Word_t) binding;
-    R_EnforceWriteBarrier(table,R_NilValue,binding);
+static int R_EnvHashFlushSymbol(SEXP symbol, SEXP table)
+{
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		e->symbol = R_UnboundValue;
+		e->value = R_NilValue;
+		LOCK_BINDING(e);
+		return 1;
+	    }
+	}
+    }
 
+    return 0;
+}
+
+/* For converting non-hashed environment with existing bindings */
+static void R_EnvHashSetBinding(SEXP binding, SEXP table, Rboolean enforceBinding)
+{
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
+    SEXP symbol=TAG(binding), value=CAR(binding);
+
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		if (enforceBinding){
+		    HASH_SET_BINDING_VALUE(e,value);
+		} else {
+		    e->value = value;
+		    if (IS_ACTIVE_BINDING(binding))
+			SET_ACTIVE_BINDING_BIT(e);
+		    if (BINDING_IS_LOCKED(binding))
+			LOCK_BINDING(e);
+		}
+		R_EnforceWriteBarrier(table,R_NilValue,e->value);
+		return;
+	    }
+	}
+    }
+
+    a->slot[i] = (a->slot[i]) ? 
+	AppendToDynamArray(a->slot[i], table, symbol, value) :
+	NewDynamArray(table, symbol, value);
+
+    d = a->slot[i];
+    e = &d->elem[d->nelem-1];
+    if (!enforceBinding){
+	if (IS_ACTIVE_BINDING(binding))
+	    SET_ACTIVE_BINDING_BIT(e);
+	if (BINDING_IS_LOCKED(binding))
+	    LOCK_BINDING(e);
+    }
 
     return;
+}
+
+static void R_EnvHashUpdateBinding(SEXP binding, SEXP table, SEXP value)
+{
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
+    SEXP symbol=TAG(binding);
+
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		HASH_SET_BINDING_VALUE(e,value);
+		R_EnforceWriteBarrier(table,R_NilValue,e->value);
+		SET_MISSING(binding, 0);
+		SETCAR(binding, e->value);
+		return;
+	    }
+	}
+    }
+
+    SETCAR(binding, R_UnboundValue);
+
+    return;
+}
+
+static int R_EnvHashLockBinding(SEXP symbol, SEXP table, Rboolean lock){
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i,j;
+    dynam_array *d;
+
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		if (lock)
+		    LOCK_BINDING(e);
+		else
+		    UNLOCK_BINDING(e);
+		return 1;
+	    }
+	}
+    }
+
+    return 0;
+}
+
+static void R_EnvHashSetSymbol(SEXP symbol, SEXP table)
+{
+    SEXP value = SYMVALUE(symbol);
+    R_EnvHashSet(symbol, table, value, FALSE);
 }
 
 
@@ -326,36 +520,44 @@ static void R_EnvHashSetBinding(SEXP binding, SEXP table)
 
 static SEXP R_EnvHashGet(SEXP symbol, SEXP table)
 {
-    SEXP binding;
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;
-
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-    jindex = (Word_t)symbol;
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    if (jvalue == NULL) return R_UnboundValue;
-
-    binding = (SEXP) *jvalue;
-    return BINDING_VALUE(binding);
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i, j;
+    dynam_array *d;
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		return HASH_BINDING_VALUE(e);
+	    }
+	}
+    }
+    return R_UnboundValue;
 }
 
 static Rboolean R_EnvHashExists(SEXP symbol, SEXP table)
 {
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;
-
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-    jindex = (Word_t)symbol;
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    return (jvalue == NULL)? FALSE : TRUE;
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i, j;
+    dynam_array *d;
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		return TRUE;
+	    }
+	}
+    }
+    return FALSE;
 }
 
 /*----------------------------------------------------------------------
@@ -373,21 +575,36 @@ static Rboolean R_EnvHashExists(SEXP symbol, SEXP table)
 
 static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
 {
-    SEXP binding;
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;
-
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-    jindex = (Word_t)symbol;
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    if (jvalue == NULL) return R_NilValue;
-
-    binding = (SEXP) *jvalue;
-    return binding;
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i, j;
+    dynam_array *d;
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		/* will this work? */
+		SEXP tmp = allocSExp(LISTSXP);
+		PROTECT(tmp);
+		SET_HASH_BINDING_BIT(tmp);
+		SETCAR(tmp, e->value);
+		SET_TAG(tmp, e->symbol);
+		SETCDR(tmp,table);
+		SET_MISSING(tmp, 0);
+		if (IS_ACTIVE_BINDING(e))
+		    SET_ACTIVE_BINDING_BIT(tmp);
+		if (BINDING_IS_LOCKED(e))
+		    LOCK_BINDING(tmp);
+		UNPROTECT(1);
+		return tmp;
+	    }
+	}
+    }
+    return R_NilValue;
 }
 
 
@@ -403,9 +620,9 @@ static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
 static SEXP R_NewEnvHashTable()
 {
     SEXP hashtab; 
-    PROTECT(hashtab = R_MakeExternalPtr(NewJudyTable(), R_NilValue, R_NilValue));
-    R_RegisterCFinalizer(hashtab,DestroyJudyTable);
-    SET_IS_ENVHASHTABLE(hashtab);
+    PROTECT(hashtab = R_MakeExternalPtr(NewArrayHash(), R_NilValue, R_NilValue));
+    R_RegisterCFinalizer(hashtab,DestroyArrayHash);
+    SET_ENVHASHTABLE_BIT(hashtab);
     UNPROTECT(1);
 
     return hashtab;
@@ -443,26 +660,25 @@ SEXP R_NewHashedEnv(SEXP enclos)
 
 static int R_EnvHashDelete(SEXP symbol, SEXP table)
 {
-    SEXP binding;
-    judy_table *jtab;
-    Word_t jindex;
-    Word_t *jvalue;
-    int deleted;
-
-    EXTRACT_JUDY_TABLE(jtab,table);
-
-    jindex = (Word_t)symbol;
-    JLG(jvalue, jtab->table, jindex);
-    JUDY_PJERR_TEST(jvalue);
-
-    if (jvalue == NULL) return 0;
-
-    binding = (SEXP) *jvalue;
-    SETCAR(binding, R_UnboundValue);
-    LOCK_BINDING(binding);
-
-    JLD(deleted,jtab->table,jindex);
-    return 1;
+    darray_elem *e;
+    array_hash *a;
+    unsigned int i, j;
+    dynam_array *d;
+    
+    EXTRACT_HASH_TABLE(a,table);
+    i = ARRAY_SLOT(a,symbol);
+    if (a->slot[i]){
+	d = a->slot[i];
+	for(j = 0; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (symbol == e->symbol){
+		e->symbol = R_NilValue;
+		e->value = R_NilValue;
+		return 1;
+	    }
+	}
+    }
+    return 0;
 }
 
 /*----------------------------------------------------------------------
@@ -486,7 +702,7 @@ static SEXP R_EnvHashFrame(SEXP rho)
     table = HASHTAB(rho);
     frame = FRAME(rho);
     while (!ISNULL(frame)) {
-	R_EnvHashSetBinding(frame, table);
+	R_EnvHashSetBinding(frame, table, FALSE);
 	frame = CDR(frame);
     }
     SET_FRAME(rho, R_NilValue);
@@ -495,7 +711,7 @@ static SEXP R_EnvHashFrame(SEXP rho)
 
 void R_EnvUnHashFrame(SEXP rho)
 {
-    SEXP frame, table, binding, lastbinding;
+    SEXP frame, table;
     int found;
     R_EnvHashCursor cursor;
 
@@ -510,86 +726,77 @@ void R_EnvUnHashFrame(SEXP rho)
 	error("Not an ENVHASHTABLE, from R_EnvUnHashFrame");
 
     R_EnvHashInitCursor(&cursor, table);
-    frame = R_EnvHashGetFirstBinding(&cursor, &found);
-    lastbinding = frame;
+    R_EnvHashCursorNext(&cursor, &found);
+    if (found){
+	if (frame == R_NilValue){
+	    frame = allocSExp(LISTSXP);
+	    SET_FRAME(rho,frame);
+	}
+    }
     while (found){
-	binding = R_EnvHashGetNextBinding(&cursor, &found);
-	CDR(lastbinding) = binding;
-	lastbinding = binding;
+	SETCAR(frame, cursor.elem->value);
+	SET_TAG(frame, cursor.elem->symbol);
+	if (IS_ACTIVE_BINDING(cursor.elem->symbol))
+	    SET_ACTIVE_BINDING_BIT(frame);
+	if (BINDING_IS_LOCKED(cursor.elem->symbol))
+	    LOCK_BINDING(frame);
+	R_EnvHashCursorNext(&cursor, &found);
+	if (found){
+	    CDR(frame) = allocSExp(LISTSXP);
+	    frame = CDR(frame);
+	}
     }
     SET_HASHTAB(rho,R_NilValue);
 }
 
 
-/*----------------------------------------------------------------------
-
-  R_EnvHashGetFirstBinding
-
-  Grab the first value in the Hash table, with the side effect of setting
-  the internal cursor to the first index. If found is set to zero, then
-  the hash table is empty.
-----------------------------------------------------------------------*/
-
 void R_EnvHashInitCursor(R_EnvHashCursor *cursor, SEXP table){
     cursor->table = table;
-    cursor->cursor = 0;
+    cursor->slot = 0;
+    cursor->datum = 0;
+    cursor->elem = NULL;
 }
 
-SEXP R_EnvHashGetFirstBinding(R_EnvHashCursor *cursor, int *found){
-    SEXP binding;
-    judy_table *jtab;
-    Word_t *jvalue;    
-    Word_t jindex;
-    
-    EXTRACT_JUDY_TABLE(jtab,cursor->table);
-
-    jindex = 0;
-
-    JLF(jvalue, jtab->table, jindex);
-
-    cursor->cursor = (unsigned long) jindex;
-
-    if (jvalue){
-	binding = (SEXP) *jvalue;
-	*found = 1;
-	return binding;
-    }
-
-    *found = 0;
-    return R_NilValue;
-}
 
 /*----------------------------------------------------------------------
 
-  R_EnvHashGetNextBinding
+  R_EnvHashCursorNext
 
-  Grab the next value in the Hash table, based on the internal cursor.
+  Grab the next value in the Hash table, based on the cursor.
   Updates the cursor to the next index. found is set if a value exists.
 
   When *found = 0, then there are no more values in the table.
 ----------------------------------------------------------------------*/
 
-SEXP R_EnvHashGetNextBinding(R_EnvHashCursor *cursor, int *found){
-    SEXP binding;
-    judy_table *jtab;
-    Word_t *jvalue;    
-    Word_t jindex;
+void R_EnvHashCursorNext(R_EnvHashCursor *cursor, int *found){
+    darray_elem *e;
+    array_hash *a;
+    dynam_array *d;
+    unsigned int i=cursor->slot;
+    int j=cursor->datum;
     
-    EXTRACT_JUDY_TABLE(jtab,cursor->table);
-    jindex = (Word_t) cursor->cursor;
+    EXTRACT_HASH_TABLE(a,cursor->table);
 
-    JLN(jvalue, jtab->table, jindex);
-
-    cursor->cursor = (unsigned long) jindex;
-
-    if (jvalue){
-	binding = (SEXP) *jvalue;
-	*found = 1;
-	return binding;
+    for(; i < a->size; i++){
+	if (!a->slot[i]) {
+	    j=0;
+	    continue;
+	}
+	d = a->slot[i];
+	for(; j < d->nelem; j++){
+	    e = &d->elem[j];
+	    if (e->symbol != R_NilValue){
+		cursor->slot = i;
+		cursor->elem = e;
+		cursor->datum = j + 1;
+		*found = 1;
+		return;
+	    }
+	}
+	j = 0;
     }
-
-    *found = 0;
-    return R_NilValue;
+    cursor->slot = a->size;
+    *found  = 0;
 }
 
 /*----------------------------------------------------------------------
@@ -1104,9 +1311,7 @@ void attribute_hidden InitGlobalEnv()
 #ifdef USE_GLOBAL_CACHE
 static void R_FlushGlobalCache(SEXP sym)
 {
-    SEXP entry = R_EnvHashGetLoc(sym, R_GlobalCache);
-    if (entry != R_NilValue) {
-	SETCAR(entry, R_UnboundValue);
+    if (R_EnvHashFlushSymbol(sym, R_GlobalCache)){
 #ifdef FAST_BASE_CACHE_LOOKUP
         UNSET_BASE_SYM_CACHED(sym);
 #endif
@@ -1115,15 +1320,14 @@ static void R_FlushGlobalCache(SEXP sym)
 
 static void R_FlushGlobalCacheFromTable(SEXP table)
 {
-    SEXP binding;
     int found;
     R_EnvHashCursor cursor;
     
     R_EnvHashInitCursor(&cursor, table);
-    binding = R_EnvHashGetFirstBinding(&cursor, &found);
+    R_EnvHashCursorNext(&cursor, &found);
     while (found){
-	R_FlushGlobalCache(TAG(binding));
-	binding = R_EnvHashGetNextBinding(&cursor, &found);
+	R_FlushGlobalCache(cursor.elem->symbol);
+	R_EnvHashCursorNext(&cursor, &found);
     }
 }
 
@@ -1146,7 +1350,10 @@ static void R_FlushGlobalCacheFromUserTable(SEXP udb)
 
 static void R_AddGlobalCache(SEXP symbol, SEXP place)
 {
-    R_EnvHashSet(symbol, R_GlobalCache, place, FALSE);
+    if (symbol == place)
+	R_EnvHashSetSymbol(symbol, R_GlobalCache);
+    else
+	R_EnvHashSetBinding(place, R_GlobalCache, FALSE); /* TAG(place) == symbol */
 #ifdef FAST_BASE_CACHE_LOOKUP
     if (symbol == place)
 	SET_BASE_SYM_CACHED(symbol);
@@ -1165,6 +1372,9 @@ static SEXP R_GetGlobalCache(SEXP symbol)
 #endif
 
     vl = R_EnvHashGet(symbol, R_GlobalCache);
+    return vl;
+
+    /* We already take care of this */
     switch(TYPEOF(vl)) {
     case SYMSXP:
 	if (vl == R_UnboundValue) /* avoid test?? */
@@ -1318,6 +1528,7 @@ static SEXP findVarLocInFrame(SEXP rho, SEXP symbol, Rboolean *canCache)
     }
     else {
 	/* Will return 'R_NilValue' if not found */
+	if (canCache) *canCache = FALSE;
 	return R_EnvHashGetLoc(symbol, HASHTAB(rho));
     }
 }
@@ -1357,7 +1568,13 @@ Rboolean R_GetVarLocMISSING(R_varloc_t vl)
 attribute_hidden
 void R_SetVarLocValue(R_varloc_t vl, SEXP value)
 {
-    SET_BINDING_VALUE((SEXP) vl, value);
+    SEXP binding = (SEXP)vl;
+
+    if (IS_HASH_BINDING(binding)){
+	R_EnvHashUpdateBinding(binding, CDR(binding), value);
+    } else {
+	SET_BINDING_VALUE(binding,value);
+    }
 }
 
 
@@ -1385,6 +1602,7 @@ SEXP findVarInFrame3(SEXP rho, SEXP symbol, Rboolean doGet)
 
     if (rho == R_BaseNamespace || rho == R_BaseEnv)
 	return SYMBOL_BINDING_VALUE(symbol);
+
 
     if (rho == R_EmptyEnv)
 	return R_UnboundValue;
@@ -2009,11 +2227,8 @@ static SEXP setVarInFrame(SEXP rho, SEXP symbol, SEXP value)
 	    frame = CDR(frame);
 	}
     } else {
-	frame = R_EnvHashGetLoc(symbol, HASHTAB(rho));
-	if (frame != R_NilValue) {
+	if (R_EnvHashSetIfExists(symbol, HASHTAB(rho), value)){
 	    if (rho == R_GlobalEnv) R_DirtyImage = 1;
-	    SET_BINDING_VALUE(frame, value);
-	    SET_MISSING(frame, 0);	/* same as defineVar */
 	    return symbol;
 	}
     }
@@ -2686,13 +2901,13 @@ SEXP attribute_hidden do_attach(SEXP call, SEXP op, SEXP args, SEXP env)
 	    PROTECT(s = allocSExp(ENVSXP));
 	    if (HASHTAB(loadenv) != R_NilValue) {
 		int found;
-		SEXP binding, table = HASHTAB(loadenv);
+		SEXP table = HASHTAB(loadenv);
 		R_EnvHashCursor cursor;
 		R_EnvHashInitCursor(&cursor, table);
-		binding = R_EnvHashGetFirstBinding(&cursor, &found);
+		R_EnvHashCursorNext(&cursor, &found);
 		while (found){
-		    defineVar(TAG(binding), lazy_duplicate(CAR(binding)), s);
-		    binding = R_EnvHashGetNextBinding(&cursor, &found);
+		    defineVar(cursor.elem->symbol, lazy_duplicate(cursor.elem->value), s);
+		    R_EnvHashCursorNext(&cursor, &found);
 		}
 		/* FIXME: duplicate the hash table and assign here */
 	    } else {
@@ -2854,6 +3069,8 @@ SEXP attribute_hidden do_search(SEXP call, SEXP op, SEXP args, SEXP env)
 */
 #define NONEMPTY_(_FRAME_) \
     CHAR(PRINTNAME(TAG(_FRAME_)))[0] != '.' && CAR(_FRAME_) != R_UnboundValue
+#define NONEMPTYSYM_(_SYM_,_VAL_) \
+    CHAR(PRINTNAME(_SYM_))[0] != '.' && _VAL_ != R_UnboundValue
 
 static int FrameSize(SEXP frame, int all)
 {
@@ -2923,22 +3140,21 @@ static void FrameValues(SEXP frame, int all, SEXP values, int *indx)
 static int HashTableSize(SEXP table, int all)
 {
     int found, count = 0;
-    SEXP binding;
     R_EnvHashCursor cursor;
 
     R_EnvHashInitCursor(&cursor, table);
     if (all){
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
 	    count++;
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     } else {
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
-	    if (NONEMPTY_(binding))
+	    if (NONEMPTYSYM_(cursor.elem->symbol,cursor.elem->value))
 		count++;
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     }
     return count;
@@ -2947,25 +3163,24 @@ static int HashTableSize(SEXP table, int all)
 static void HashTableNames(SEXP table, int all, SEXP names, int *indx)
 {
     int found;
-    SEXP binding;
     R_EnvHashCursor cursor;
 
     R_EnvHashInitCursor(&cursor, table);
     if (all){
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
-	    SET_STRING_ELT(names, *indx, PRINTNAME(TAG(binding)));
+	    SET_STRING_ELT(names, *indx, PRINTNAME(cursor.elem->symbol));
 	    (*indx)++;
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     } else {
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
-	    if (NONEMPTY_(binding)){
-		SET_STRING_ELT(names, *indx, PRINTNAME(TAG(binding)));
+	    if (NONEMPTYSYM_(cursor.elem->symbol,cursor.elem->value)){
+		SET_STRING_ELT(names, *indx, PRINTNAME(cursor.elem->symbol));
 		(*indx)++;
 	    }
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     }
 }
@@ -2973,15 +3188,14 @@ static void HashTableNames(SEXP table, int all, SEXP names, int *indx)
 static void HashTableValues(SEXP table, int all, SEXP values, int *indx)
 {
     int found;
-    SEXP binding;
     R_EnvHashCursor cursor;
 
     R_EnvHashInitCursor(&cursor, table);
     if (all){
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
 #         define DO_HashValues						\
-	    SEXP value = CAR(binding);					\
+	    SEXP value = cursor.elem->value;					\
 	    if (TYPEOF(value) == PROMSXP) {				\
 		PROTECT(value);						\
 		value = eval(value, R_GlobalEnv);			\
@@ -2990,15 +3204,15 @@ static void HashTableValues(SEXP table, int all, SEXP values, int *indx)
 	    SET_VECTOR_ELT(values, *indx, lazy_duplicate(value));	\
 	    (*indx)++
 	    DO_HashValues;
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     } else {
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
-	    if (NONEMPTY_(binding)){
+	    if (NONEMPTYSYM_(cursor.elem->symbol,cursor.elem->value)){
 		DO_HashValues;
 	    }
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
     }
 }
@@ -3499,16 +3713,16 @@ void R_LockEnvironment(SEXP env, Rboolean bindings)
     if (TYPEOF(env) != ENVSXP)
 	error(_("not an environment"));
     if (bindings) {
-	if (IS_HASHED(env)) {
-	    SEXP binding, table=HASHTAB(env);
+	if (HASHTAB(env) && IS_ENVHASHTABLE(HASHTAB(env))) {
+	    SEXP table=HASHTAB(env);
 	    int found;
 	    R_EnvHashCursor cursor;
 
 	    R_EnvHashInitCursor(&cursor, table);
-	    binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	    while (found){
-		LOCK_BINDING(binding);
-		binding = R_EnvHashGetNextBinding(&cursor, &found);
+		LOCK_BINDING(cursor.elem);
+		R_EnvHashCursorNext(&cursor, &found);
 	    }
 	}
 	else {
@@ -3560,7 +3774,10 @@ void R_LockBinding(SEXP sym, SEXP env)
 	/* It is a symbol, so must have a binding even if it is
 	   R_UnboundSymbol */
 	LOCK_BINDING(sym);
-    else {
+    else if (HASHTAB(env) && IS_ENVHASHTABLE(HASHTAB(env))){
+	if (!R_EnvHashLockBinding(sym, HASHTAB(env),TRUE))
+	    error(_("no binding for \"%s\""), EncodeChar(PRINTNAME(sym)));
+    } else {
 	SEXP binding = findVarLocInFrame(env, sym, NULL);
 	if (binding == R_NilValue)
 	    error(_("no binding for \"%s\""), EncodeChar(PRINTNAME(sym)));
@@ -3581,7 +3798,10 @@ void R_unLockBinding(SEXP sym, SEXP env)
 	/* It is a symbol, so must have a binding even if it is
 	   R_UnboundSymbol */
 	UNLOCK_BINDING(sym);
-    else {
+    else if (HASHTAB(env) && IS_ENVHASHTABLE(HASHTAB(env))){
+	if (!R_EnvHashLockBinding(sym, HASHTAB(env),FALSE))
+	    error(_("no binding for \"%s\""), EncodeChar(PRINTNAME(sym)));
+    } else {
 	SEXP binding = findVarLocInFrame(env, sym, NULL);
 	if (binding == R_NilValue)
 	    error(_("no binding for \"%s\""), EncodeChar(PRINTNAME(sym)));
@@ -3671,16 +3891,16 @@ Rboolean R_BindingIsActive(SEXP sym, SEXP env)
 Rboolean R_HasFancyBindings(SEXP rho)
 {
     if (IS_HASHED(rho)) {
-	SEXP binding, table = HASHTAB(rho);
+	SEXP table = HASHTAB(rho);
 	int found;
 	R_EnvHashCursor cursor;
 
 	R_EnvHashInitCursor(&cursor, table);
-	binding = R_EnvHashGetFirstBinding(&cursor, &found);
+	R_EnvHashCursorNext(&cursor, &found);
 	while (found){
-	    if (IS_ACTIVE_BINDING(binding) || BINDING_IS_LOCKED(binding))
+	    if (IS_ACTIVE_BINDING(cursor.elem->symbol) || BINDING_IS_LOCKED(cursor.elem->symbol))
 		return TRUE;
-	    binding = R_EnvHashGetNextBinding(&cursor, &found);
+	    R_EnvHashCursorNext(&cursor, &found);
 	}
 	return FALSE;
     }
@@ -3776,7 +3996,7 @@ void R_RestoreHashCount(SEXP rho)
 	for (i = 0; i < size; i++){
 	    frame = VECTOR_ELT(table, i);
 	    while (frame != R_NilValue) {
-		R_EnvHashSetBinding(frame,HASHTAB(rho));
+		R_EnvHashSetBinding(frame,HASHTAB(rho), FALSE);
 		frame = CDR(frame);
 	    }
 	}
