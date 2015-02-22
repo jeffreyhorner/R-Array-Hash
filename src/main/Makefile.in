@@ -31,12 +31,14 @@ SOURCES_C = \
 	paste.c platform.c plot.c plot3d.c plotmath.c \
 	print.c printarray.c printvector.c printutils.c qsort.c \
 	random.c raw.c registration.c relop.c rlocale.c \
-	saveload.c scan.c seq.c serialize.c sort.c source.c split.c \
+	saveload.c scan.c seq.c serialize.c stringtable.c sort.c source.c split.c \
 	sprintf.c startup.c subassign.c subscript.c subset.c summary.c sysutils.c \
 	times.c \
 	unique.c util.c \
 	version.c \
 	g_alab_her.c g_cntrlify.c g_fontdb.c g_her_glyph.c
+
+SOURCES_CC = farmhash.cc
 
 SOURCES_F =  xxxpr.f
 
@@ -46,8 +48,8 @@ EXTRA_SOURCES_C = \
 	Rmain.c alloca.c mkdtemp.c strdup.c strncasecmp.c
 
 DEPENDS = $(SOURCES_C:.c=.d) $(EXTRA_SOURCES_C:.c=.d)
-SOURCES = $(SOURCES_C) $(SOURCES_F)
-OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o) @LIBOBJS@ @ALLOCA@
+SOURCES = $(SOURCES_C) $(SOURCES_F) $(SOURCES_CC)
+OBJECTS = $(SOURCES_C:.c=.o) $(SOURCES_F:.f=.o) $(SOURCES_CC:.cc=.o) @LIBOBJS@ @ALLOCA@
 HEADERS = \
 	RBufferUtils.h Rstrptime.h \
 	arithmetic.h \
@@ -69,6 +71,7 @@ DISTFILES = Makefile.in Makefile.win \
 	$(SOURCES_C) \
 	$(EXTRA_SOURCES_C) \
 	$(SOURCES_F) \
+	$(SOURCES_CC) \
 	gram.y
 
 ZLIB_CPPFLAGS = @BUILD_ZLIB_TRUE@ -I$(top_srcdir)/src/extra/zlib

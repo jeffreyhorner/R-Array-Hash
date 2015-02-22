@@ -957,18 +957,18 @@ int attribute_hidden R_Newhashpjw(const char *s)
 
 */
 
-static SEXP R_NewHashTable(int size)
-{
-    SEXP table;
-
-    if (size <= 0) size = HASHMINSIZE;
-
-    /* Allocate hash table in the form of a vector */
-    PROTECT(table = allocVector(VECSXP, size));
-    SET_HASHPRI(table, 0);
-    UNPROTECT(1);
-    return(table);
-}
+//static SEXP R_NewHashTable(int size)
+//{
+//    SEXP table;
+//
+//    if (size <= 0) size = HASHMINSIZE;
+//
+//    /* Allocate hash table in the form of a vector */
+//    PROTECT(table = allocVector(VECSXP, size));
+//    SET_HASHPRI(table, 0);
+//    UNPROTECT(1);
+//    return(table);
+//}
 
 /*----------------------------------------------------------------------
 
@@ -1093,19 +1093,19 @@ static SEXP R_NewHashTable(int size)
 
 */
 
-static int R_HashSizeCheck(SEXP table)
-{
-    int resize;
-    double thresh_val;
-
-    /* Do some checking */
-    if (TYPEOF(table) != VECSXP)
-	error("first argument ('table') not of type VECSXP, R_HashSizeCheck");
-    resize = 0; thresh_val = 0.85;
-    if ((double)HASHPRI(table) > (double)HASHSIZE(table) * thresh_val)
-	resize = 1;
-    return resize;
-}
+//static int R_HashSizeCheck(SEXP table)
+//{
+//    int resize;
+//    double thresh_val;
+//
+//    /* Do some checking */
+//    if (TYPEOF(table) != VECSXP)
+//	error("first argument ('table') not of type VECSXP, R_HashSizeCheck");
+//    resize = 0; thresh_val = 0.85;
+//    if ((double)HASHPRI(table) > (double)HASHSIZE(table) * thresh_val)
+//	resize = 1;
+//    return resize;
+//}
 
 
 
@@ -3224,20 +3224,18 @@ static int BuiltinSize(int all, int intern)
 {
     int count = 0;
     SEXP s;
-    int j;
-    for (j = 0; j < HSIZE; j++) {
-	for (s = R_SymbolTable[j]; s != R_NilValue; s = CDR(s)) {
-	    if (intern) {
-		if (INTERNAL(CAR(s)) != R_NilValue)
-		    count++;
-	    }
-	    else {
-		if ((all || CHAR(PRINTNAME(CAR(s)))[0] != '.')
-		    && SYMVALUE(CAR(s)) != R_UnboundValue)
-		    count++;
-	    }
+    TRAVERSE_SYMBOLTABLE(s)
+    { 
+	if (intern) {
+	    if (INTERNAL(s) != R_NilValue)
+		count++;
 	}
-    }
+	else {
+	    if ((all || CHAR(PRINTNAME(s))[0] != '.')
+		&& SYMVALUE(s) != R_UnboundValue)
+		count++;
+	}
+    } END_TRAVERSE_SYMBOLTABLE;
     return count;
 }
 
@@ -3245,54 +3243,52 @@ static void
 BuiltinNames(int all, int intern, SEXP names, int *indx)
 {
     SEXP s;
-    int j;
-    for (j = 0; j < HSIZE; j++) {
-	for (s = R_SymbolTable[j]; s != R_NilValue; s = CDR(s)) {
-	    if (intern) {
-		if (INTERNAL(CAR(s)) != R_NilValue)
-		    SET_STRING_ELT(names, (*indx)++, PRINTNAME(CAR(s)));
-	    }
-	    else {
-		if ((all || CHAR(PRINTNAME(CAR(s)))[0] != '.')
-		    && SYMVALUE(CAR(s)) != R_UnboundValue)
-		    SET_STRING_ELT(names, (*indx)++, PRINTNAME(CAR(s)));
-	    }
+
+    TRAVERSE_SYMBOLTABLE(s)
+    {
+	if (intern) {
+	    if (INTERNAL(s) != R_NilValue)
+		SET_STRING_ELT(names, (*indx)++, PRINTNAME(s));
 	}
-    }
+	else {
+	    if ((all || CHAR(PRINTNAME(s))[0] != '.')
+		&& SYMVALUE(s) != R_UnboundValue)
+		SET_STRING_ELT(names, (*indx)++, PRINTNAME(s));
+	}
+    } END_TRAVERSE_SYMBOLTABLE;
 }
 
 static void
 BuiltinValues(int all, int intern, SEXP values, int *indx)
 {
     SEXP s, vl;
-    int j;
-    for (j = 0; j < HSIZE; j++) {
-	for (s = R_SymbolTable[j]; s != R_NilValue; s = CDR(s)) {
-	    if (intern) {
-		if (INTERNAL(CAR(s)) != R_NilValue) {
-		    vl = SYMVALUE(CAR(s));
-		    if (TYPEOF(vl) == PROMSXP) {
-			PROTECT(vl);
-			vl = eval(vl, R_BaseEnv);
-			UNPROTECT(1);
-		    }
-		    SET_VECTOR_ELT(values, (*indx)++, lazy_duplicate(vl));
+
+    TRAVERSE_SYMBOLTABLE(s)
+    {
+	if (intern) {
+	    if (INTERNAL(s) != R_NilValue) {
+		vl = SYMVALUE(s);
+		if (TYPEOF(vl) == PROMSXP) {
+		    PROTECT(vl);
+		    vl = eval(vl, R_BaseEnv);
+		    UNPROTECT(1);
 		}
-	    }
-	    else {
-		if ((all || CHAR(PRINTNAME(CAR(s)))[0] != '.')
-		    && SYMVALUE(CAR(s)) != R_UnboundValue) {
-		    vl = SYMVALUE(CAR(s));
-		    if (TYPEOF(vl) == PROMSXP) {
-			PROTECT(vl);
-			vl = eval(vl, R_BaseEnv);
-			UNPROTECT(1);
-		    }
-		    SET_VECTOR_ELT(values, (*indx)++, lazy_duplicate(vl));
-		}
+		SET_VECTOR_ELT(values, (*indx)++, lazy_duplicate(vl));
 	    }
 	}
-    }
+	else {
+	    if ((all || CHAR(PRINTNAME(s))[0] != '.')
+		&& SYMVALUE(s) != R_UnboundValue) {
+		vl = SYMVALUE(s);
+		if (TYPEOF(vl) == PROMSXP) {
+		    PROTECT(vl);
+		    vl = eval(vl, R_BaseEnv);
+		    UNPROTECT(1);
+		}
+		SET_VECTOR_ELT(values, (*indx)++, lazy_duplicate(vl));
+	    }
+	}
+    } END_TRAVERSE_SYMBOLTABLE;
 }
 
 SEXP attribute_hidden do_ls(SEXP call, SEXP op, SEXP args, SEXP rho)
@@ -3348,8 +3344,8 @@ SEXP R_lsInternal3(SEXP env, Rboolean all, Rboolean sorted)
 	    FrameNames(FRAME(env), all, ans, &k);
     }
 
-    UNPROTECT(1);
     if(sorted) sortVector(ans, FALSE);
+    UNPROTECT(1);
     return ans;
 }
 
@@ -3697,11 +3693,10 @@ void R_LockEnvironment(SEXP env, Rboolean bindings)
     if (env == R_BaseEnv || env == R_BaseNamespace) {
 	if (bindings) {
 	    SEXP s;
-	    int j;
-	    for (j = 0; j < HSIZE; j++)
-		for (s = R_SymbolTable[j]; s != R_NilValue; s = CDR(s))
-		    if(SYMVALUE(CAR(s)) != R_UnboundValue)
-			LOCK_BINDING(CAR(s));
+	    TRAVERSE_SYMBOLTABLE(s) {
+		if(SYMVALUE(CAR(s)) != R_UnboundValue)
+		    LOCK_BINDING(CAR(s));
+	    } END_TRAVERSE_SYMBOLTABLE;
 	}
 #ifdef NOT_YET
 	/* causes problems with Matrix */
@@ -4273,28 +4268,6 @@ SEXP attribute_hidden do_envprofile(SEXP call, SEXP op, SEXP args, SEXP rho)
     return ans;
 }
 
-SEXP mkCharCE(const char *name, cetype_t enc)
-{
-    size_t len =  strlen(name);
-    if (len > INT_MAX)
-	error("R character strings are limited to 2^31-1 bytes");
-   return mkCharLenCE(name, (int) len, enc);
-}
-
-/* no longer used in R but docuented in 2.7.x */
-SEXP mkCharLen(const char *name, int len)
-{
-    return mkCharLenCE(name, len, CE_NATIVE);
-}
-
-SEXP mkChar(const char *name)
-{
-    size_t len =  strlen(name);
-    if (len > INT_MAX)
-	error("R character strings are limited to 2^31-1 bytes");
-    return mkCharLenCE(name, (int) len, CE_NATIVE);
-}
-
 /* Global CHARSXP cache and code for char-based hash tables */
 
 /* We can reuse the hash structure, but need separate code for get/set
@@ -4308,249 +4281,19 @@ SEXP mkChar(const char *name)
    char_hash_size - 1 for x & char_hash_mask to be equivalent to x %
    char_hash_size.
 */
-static unsigned int char_hash_size = 65536;
-static unsigned int char_hash_mask = 65535;
-
-static unsigned int char_hash(const char *s, int len)
-{
-    /* djb2 as from http://www.cse.yorku.ca/~oz/hash.html */
-    char *p;
-    int i;
-    unsigned int h = 5381;
-    for (p = (char *) s, i = 0; i < len; p++, i++)
-	h = ((h << 5) + h) + (*p);
-    return h;
-}
-
-void attribute_hidden InitStringHash()
-{
-    R_StringHash = R_NewHashTable(char_hash_size);
-}
-
-/* #define DEBUG_GLOBAL_STRING_HASH 1 */
-
-/* Resize the global R_StringHash CHARSXP cache */
-static void R_StringHash_resize(unsigned int newsize)
-{
-    SEXP old_table = R_StringHash;
-    SEXP new_table, chain, new_chain, val, next;
-    unsigned int counter, new_hashcode, newmask;
-#ifdef DEBUG_GLOBAL_STRING_HASH
-    unsigned int oldsize = HASHSIZE(R_StringHash);
-    unsigned int oldpri = HASHPRI(R_StringHash);
-    unsigned int newsize, newpri;
-#endif
-
-    /* Allocate the new hash table.  This could fail to allocate
-       enough memory, and ideally we would recover from that and
-       carry over with a table that was getting full.
-     */
-    /* When using the ATTRIB fields to maintain the chains the chain
-       moving is destructive and does not involve allocation.  This is
-       therefore the only point where GC can occur. */
-    new_table = R_NewHashTable(newsize);
-    newmask = newsize - 1;
-
-    /* transfer chains from old table to new table */
-    for (counter = 0; counter < LENGTH(old_table); counter++) {
-	chain = VECTOR_ELT(old_table, counter);
-	while (!ISNULL(chain)) {
-	    val = CXHEAD(chain);
-	    next = CXTAIL(chain);
-	    new_hashcode = char_hash(CHAR(val), LENGTH(val)) & newmask;
-	    new_chain = VECTOR_ELT(new_table, new_hashcode);
-	    /* If using a primary slot then increase HASHPRI */
-	    if (ISNULL(new_chain))
-		SET_HASHPRI(new_table, HASHPRI(new_table) + 1);
-	    /* move the current chain link to the new chain */
-	    /* this is a destrictive modification */
-	    new_chain = SET_CXTAIL(val, new_chain);
-	    SET_VECTOR_ELT(new_table, new_hashcode, new_chain);
-	    chain = next;
-	}
-    }
-    R_StringHash = new_table;
-    char_hash_size = newsize;
-    char_hash_mask = newmask;
-#ifdef DEBUG_GLOBAL_STRING_HASH
-    newsize = HASHSIZE(new_table);
-    newpri = HASHPRI(new_table);
-    Rprintf("Resized: size %d => %d\tpri %d => %d\n",
-	    oldsize, newsize, oldpri, newpri);
-#endif
-}
-
-/* mkCharCE - make a character (CHARSXP) variable and set its
-   encoding bit.  If a CHARSXP with the same string already exists in
-   the global CHARSXP cache, R_StringHash, it is returned.  Otherwise,
-   a new CHARSXP is created, added to the cache and then returned. */
-
-
-SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
-{
-    SEXP cval, chain;
-    unsigned int hashcode;
-    int need_enc;
-    Rboolean embedNul = FALSE, is_ascii = TRUE;
-
-    switch(enc){
-    case CE_NATIVE:
-    case CE_UTF8:
-    case CE_LATIN1:
-    case CE_BYTES:
-    case CE_SYMBOL:
-    case CE_ANY:
-	break;
-    default:
-	error(_("unknown encoding: %d"), enc);
-    }
-    for (int slen = 0; slen < len; slen++) {
-	if ((unsigned int) name[slen] > 127) is_ascii = FALSE;
-	if (!name[slen]) embedNul = TRUE;
-    }
-    if (embedNul) {
-	SEXP c;
-	/* This is tricky: we want to make a reasonable job of
-	   representing this string, and EncodeString() is the most
-	   comprehensive */
-	c = allocCharsxp(len);
-	memcpy(CHAR_RW(c), name, len);
-	switch(enc) {
-	case CE_UTF8: SET_UTF8(c); break;
-	case CE_LATIN1: SET_LATIN1(c); break;
-	case CE_BYTES: SET_BYTES(c); break;
-	default: break;
-	}
-	if (is_ascii) SET_ASCII(c);
-	error(_("embedded nul in string: '%s'"),
-	      EncodeString(c, 0, 0, Rprt_adj_none));
-    }
-
-    if (enc && is_ascii) enc = CE_NATIVE;
-    switch(enc) {
-    case CE_UTF8: need_enc = UTF8_MASK; break;
-    case CE_LATIN1: need_enc = LATIN1_MASK; break;
-    case CE_BYTES: need_enc = BYTES_MASK; break;
-    default: need_enc = 0;
-    }
-
-    hashcode = char_hash(name, len) & char_hash_mask;
-
-    /* Search for a cached value */
-    cval = R_NilValue;
-    chain = VECTOR_ELT(R_StringHash, hashcode);
-    for (; !ISNULL(chain) ; chain = CXTAIL(chain)) {
-	SEXP val = CXHEAD(chain);
-	if (TYPEOF(val) != CHARSXP) break; /* sanity check */
-	if (need_enc == (ENC_KNOWN(val) | IS_BYTES(val)) &&
-	    LENGTH(val) == len &&  /* quick pretest */
-	    memcmp(CHAR(val), name, len) == 0) {
-	    cval = val;
-	    break;
-	}
-    }
-    if (cval == R_NilValue) {
-	/* no cached value; need to allocate one and add to the cache */
-	PROTECT(cval = allocCharsxp(len));
-	memcpy(CHAR_RW(cval), name, len);
-	switch(enc) {
-	case CE_NATIVE:
-	    break;          /* don't set encoding */
-	case CE_UTF8:
-	    SET_UTF8(cval);
-	    break;
-	case CE_LATIN1:
-	    SET_LATIN1(cval);
-	    break;
-	case CE_BYTES:
-	    SET_BYTES(cval);
-	    break;
-	default:
-	    error("unknown encoding mask: %d", enc);
-	}
-	if (is_ascii) SET_ASCII(cval);
-	SET_CACHED(cval);  /* Mark it */
-	/* add the new value to the cache */
-	chain = VECTOR_ELT(R_StringHash, hashcode);
-	if (ISNULL(chain))
-	    SET_HASHPRI(R_StringHash, HASHPRI(R_StringHash) + 1);
-	/* this is a destrictive modification */
-	chain = SET_CXTAIL(cval, chain);
-	SET_VECTOR_ELT(R_StringHash, hashcode, chain);
-
-	/* resize the hash table if necessary with the new entry still
-	   protected.
-	   Maximum possible power of two is 2^30 for a VECSXP.
-	   FIXME: this has changed with long vectors.
-	*/
-	if (R_HashSizeCheck(R_StringHash)
-	    && char_hash_size < 1073741824 /* 2^30 */)
-	    R_StringHash_resize(char_hash_size * 2);
-
-	UNPROTECT(1);
-    }
-    return cval;
-}
-
-#ifdef DEBUG_SHOW_CHARSXP_CACHE
-/* Call this from gdb with
-
-       call do_show_cache(10)
-
-   for the first 10 cache chains in use. */
-void do_show_cache(int n)
-{
-    int i, j;
-    Rprintf("Cache size: %d\n", LENGTH(R_StringHash));
-    Rprintf("Cache pri:  %d\n", HASHPRI(R_StringHash));
-    for (i = 0, j = 0; j < n && i < LENGTH(R_StringHash); i++) {
-	SEXP chain = VECTOR_ELT(R_StringHash, i);
-	if (! ISNULL(chain)) {
-	    Rprintf("Line %d: ", i);
-	    do {
-		if (IS_UTF8(CXHEAD(chain)))
-		    Rprintf("U");
-		else if (IS_LATIN1(CXHEAD(chain)))
-		    Rprintf("L");
-		else if (IS_BYTES(CXHEAD(chain)))
-		    Rprintf("B");
-		Rprintf("|%s| ", CHAR(CXHEAD(chain)));
-		chain = CXTAIL(chain);
-	    } while(! ISNULL(chain));
-	    Rprintf("\n");
-	    j++;
-	}
-    }
-}
-
-void do_write_cache()
-{
-    int i;
-    FILE *f = fopen("/tmp/CACHE", "w");
-    if (f != NULL) {
-	fprintf(f, "Cache size: %d\n", LENGTH(R_StringHash));
-	fprintf(f, "Cache pri:  %d\n", HASHPRI(R_StringHash));
-	for (i = 0; i < LENGTH(R_StringHash); i++) {
-	    SEXP chain = VECTOR_ELT(R_StringHash, i);
-	    if (! ISNULL(chain)) {
-		fprintf(f, "Line %d: ", i);
-		do {
-		    if (IS_UTF8(CXHEAD(chain)))
-			fprintf(f, "U");
-		    else if (IS_LATIN1(CXHEAD(chain)))
-			fprintf(f, "L");
-		    else if (IS_BYTES(CXHEAD(chain)))
-			fprintf(f, "B");
-		    fprintf(f, "|%s| ", CHAR(CXHEAD(chain)));
-		    chain = CXTAIL(chain);
-		} while(! ISNULL(chain));
-		fprintf(f, "\n");
-	    }
-	}
-	fclose(f);
-    }
-}
-#endif /* DEBUG_SHOW_CHARSXP_CACHE */
+//static unsigned int char_hash_size = 65536;
+//static unsigned int char_hash_mask = 65535;
+//
+//static unsigned int char_hash(const char *s, int len)
+//{
+//    /* djb2 as from http://www.cse.yorku.ca/~oz/hash.html */
+//    char *p;
+//    int i;
+//    unsigned int h = 5381;
+//    for (p = (char *) s, i = 0; i < len; p++, i++)
+//	h = ((h << 5) + h) + (*p);
+//    return h;
+//}
 
 // topenv
 

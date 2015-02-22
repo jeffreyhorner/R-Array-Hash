@@ -372,7 +372,12 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
    immediately after the node structure, so the data address is a
    known offset from the node SEXP. */
 #define DATAPTR(x)	(((SEXPREC_ALIGN *) (x)) + 1)
-#define CHAR(x)		((const char *) DATAPTR(x))
+/* Old def */
+/* #define CHAR(x)	    ((const char *) DATAPTR(x)) */
+
+const char *R_STCHAR(SEXP charsxp);
+/*#define CHAR(x)		((const char *) *(char **)DATAPTR(x)) */
+#define CHAR(x)         R_STCHAR(x)
 #define LOGICAL(x)	((int *) DATAPTR(x))
 #define INTEGER(x)	((int *) DATAPTR(x))
 #define RAW(x)		((Rbyte *) DATAPTR(x))
@@ -431,31 +436,6 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
 #define HASHTAB(x)	((x)->u.envsxp.hashtab)
 #define ENVFLAGS(x)	((x)->sxpinfo.gp)	/* for environments */
 #define SET_ENVFLAGS(x,v)	(((x)->sxpinfo.gp)=(v))
-
-/* Array Hash data structures and declarations */
-#define ENVHASHTABLE_MASK (1<<2)
-#define IS_ENVHASHTABLE(x) ((x)->sxpinfo.gp & ENVHASHTABLE_MASK)
-#define SET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) |= ENVHASHTABLE_MASK)
-#define UNSET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) &= ~ENVHASHTABLE_MASK)
-#define HASH_BINDING_MASK (1<<13)
-#define IS_HASH_BINDING(b) ((b)->sxpinfo.gp & HASH_BINDING_MASK)
-#define SET_HASH_BINDING_BIT(b) ((b)->sxpinfo.gp |= HASH_BINDING_MASK)
-
-void R_EnforceWriteBarrier(SEXP, SEXP, SEXP);
-typedef struct darray_elem_t {
-    struct sxpinfo_struct sxpinfo;
-    SEXP symbol;
-    SEXP value;
-} darray_elem;
-typedef struct { // need something better here
-    SEXP table;
-    darray_elem *elem;
-    unsigned int slot;
-    int datum;
-} R_EnvHashCursor;
-void R_EnvHashInitCursor(R_EnvHashCursor *, SEXP);
-void R_EnvHashCursorNext(R_EnvHashCursor *, int *);
-void R_EnvUnHashFrame(SEXP);
 
 #else /* not USE_RINTERNALS */
 // ======================= not USE_RINTERNALS section
@@ -1234,6 +1214,7 @@ void R_orderVector(int *indx, int n, SEXP arglist, Rboolean nalast, Rboolean dec
 #define mkCharCE		Rf_mkCharCE
 #define mkCharLen		Rf_mkCharLen
 #define mkCharLenCE		Rf_mkCharLenCE
+#define mkCharLenCEA		Rf_mkCharLenCEA
 #define mkNamed			Rf_mkNamed
 #define mkString		Rf_mkString
 #define namesgets		Rf_namesgets
@@ -1384,7 +1365,88 @@ SEXP R_FixupRHS(SEXP x, SEXP y);
 	if(R_CStackLimit != -1 && usage > ((intptr_t) R_CStackLimit))	\
 	    R_SignalCStackOverflow(usage);				\
     } while (FALSE)
+
+
 #endif
+
+#ifdef USE_RINTERNALS
+/* Array Hash data structures and declarations */
+#define ENVHASHTABLE_MASK (1<<2)
+#define IS_ENVHASHTABLE(x) ((x)->sxpinfo.gp & ENVHASHTABLE_MASK)
+#define SET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) |= ENVHASHTABLE_MASK)
+#define UNSET_ENVHASHTABLE_BIT(x) (((x)->sxpinfo.gp) &= ~ENVHASHTABLE_MASK)
+#define HASH_BINDING_MASK (1<<13)
+#define IS_HASH_BINDING(b) ((b)->sxpinfo.gp & HASH_BINDING_MASK)
+#define SET_HASH_BINDING_BIT(b) ((b)->sxpinfo.gp |= HASH_BINDING_MASK)
+
+typedef struct darray_elem_t {
+    struct sxpinfo_struct sxpinfo;
+    SEXP symbol;
+    SEXP value;
+} darray_elem;
+
+typedef struct { // need something better here
+    SEXP table;
+    darray_elem *elem;
+    unsigned int slot;
+    int datum;
+} R_EnvHashCursor;
+
+void R_EnvHashInitCursor(R_EnvHashCursor *, SEXP);
+void R_EnvHashCursorNext(R_EnvHashCursor *, int *);
+void R_EnvUnHashFrame(SEXP);
+
+/* Performant string hashing function */
+size_t StringHash(const char *s, size_t len);
+
+typedef struct {
+    SEXP symsxp;
+    SEXP charsxp;
+    size_t size;  /* size of entire element */
+    R_len_t len;  /* string length */
+} R_str_elem_t; /* string data follows element in memory */
+
+typedef struct {
+    size_t size; /* size of entire slot */
+} R_str_slot_t; /* element data follows slot in memory */
+
+typedef struct {
+    R_len_t len;
+    R_str_slot_t *slot[];
+} R_str_table_t;
+
+typedef struct R_sym_table {
+    SEXP symsxp;
+    struct R_sym_table *next;
+} R_sym_table_t;
+
+SEXP R_STInsChrStr(SEXP charsxp, const char *name, R_len_t len);
+void R_STDelCHAR(const char *);
+R_str_table_t *R_StringTable;       /* Global table of CHARSXPs and SYMSXPs */
+R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */
+
+#define TRAVERSE_STRINGTABLE_CHARSXP(__charsxp__) \
+    for(int __i__=0; __i__ < R_StringTable->len; __i__++) { \
+	R_str_slot_t *__slot__ = R_StringTable->slot[__i__]; \
+	if (!__slot__) continue; \
+	R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1); \
+	R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size); \
+	while (__e__ != __end__) { \
+	    if (__e__->charsxp) { \
+	    __charsxp__ = __e__->charsxp;
+
+#define END_TRAVERSE_STRINGTABLE }; __e__ = (R_str_elem_t *)((char *)__e__ + __e__->size); } }
+
+#define TRAVERSE_SYMBOLTABLE(s) \
+    for(R_sym_table_t *__sym__=R_SymbolTable; __sym__!=NULL; __sym__=__sym__->next ) { \
+	s = __sym__->symsxp; 
+#define END_TRAVERSE_SYMBOLTABLE }
+
+/* R_EnforceWriteBarrier - exported function to allow experimentation outside
+   of memory.c */
+void R_EnforceWriteBarrier(SEXP x, SEXP old, SEXP new);
+
+#endif /* USE_RINTERNALS */
 
 
 #ifdef __cplusplus

@@ -98,7 +98,7 @@ extern0 SEXP    R_dot_Class;  /* ".Class" */
 extern0 SEXP    R_dot_GenericCallEnv;  /* ".GenericCallEnv" */
 extern0 SEXP    R_dot_GenericDefEnv;  /* ".GenericDefEnv" */
 
-extern0 SEXP	R_StringHash;       /* Global hash of CHARSXPs */
+
 
 // 
 
@@ -654,7 +654,6 @@ LibExtern SEXP*	R_PPStack;	    /* The pointer protection stack */
 /* Evaluation Environment */
 extern0 SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
 extern0 SEXP	R_ReturnedValue;    /* Slot for return-ing values */
-extern0 SEXP*	R_SymbolTable;	    /* The symbol table */
 #ifdef R_USE_SIGNALS
 extern0 RCNTXT R_Toplevel;	      /* Storage for the toplevel context */
 extern0 RCNTXT* R_ToplevelContext;  /* The toplevel context */
@@ -884,6 +883,7 @@ LibExtern Rboolean UseInternet2;
 # define InitNames		Rf_InitNames
 # define InitOptions		Rf_InitOptions
 # define InitStringHash		Rf_InitStringHash
+# define InitStringTable	Rf_InitStringTable
 # define InitS3DefaultTypes	Rf_InitS3DefaultTypes
 # define InitTempDir		Rf_InitTempDir
 # define InitTypeTables		Rf_InitTypeTables
@@ -1036,7 +1036,7 @@ SEXP Rf_EnsureString(SEXP);
 
 /* Other Internally Used Functions */
 
-SEXP Rf_allocCharsxp(R_len_t);
+SEXP Rf_allocCharsxp(const char *, R_len_t);
 SEXP Rf_append(SEXP, SEXP); /* apparently unused now */
 R_xlen_t asVecSize(SEXP x);
 void check1arg(SEXP, SEXP, const char *);
@@ -1088,7 +1088,7 @@ void InitGraphics(void);
 void InitMemory(void);
 void InitNames(void);
 void InitOptions(void);
-void InitStringHash(void);
+void InitStringTable(void);
 void Init_R_Variables(SEXP);
 void InitTempDir(void);
 void InitTypeTables(void);
@@ -1366,6 +1366,12 @@ extern void *alloca(size_t);
 # define LDOUBLE long double
 #else
 # define LDOUBLE double
+#endif
+
+/* Valgrind has trouble propagating NaN value of NA with long doubles */
+#if VALGRIND_LEVEL > 0
+#undef LDOUBLE
+#define LDOUBLE double
 #endif
 
 /* int_fast64_t is required by C99/C11

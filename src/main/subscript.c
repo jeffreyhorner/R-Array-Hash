@@ -223,6 +223,7 @@ get1index(SEXP s, SEXP names, R_xlen_t len, int pok, int pos, SEXP call)
 
 	/* Try for exact match */
 	vmax = vmaxget();
+	PROTECT(names);
 	ss = translateChar(STRING_ELT(s, pos));
 	for (R_xlen_t i = 0; i < xlength(names); i++)
 	    if (STRING_ELT(names, i) != NA_STRING) {
@@ -262,6 +263,7 @@ get1index(SEXP s, SEXP names, R_xlen_t len, int pok, int pos, SEXP call)
 		}
 	    }
 	}
+	UNPROTECT(1);
 	vmaxset(vmax);
 	break;
     case SYMSXP:

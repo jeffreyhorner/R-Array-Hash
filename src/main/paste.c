@@ -283,6 +283,7 @@ SEXP attribute_hidden do_filepath(SEXP call, SEXP op, SEXP args, SEXP env)
     int i, j, k, ln, maxlen, nx, nzero, pwidth, sepw;
     const char *s, *csep, *cbuf;
     char *buf;
+    const void *vmax = vmaxget();
 
     checkArity(op, args);
 
@@ -299,7 +300,7 @@ SEXP attribute_hidden do_filepath(SEXP call, SEXP op, SEXP args, SEXP env)
     if (!isString(sep) || LENGTH(sep) <= 0 || STRING_ELT(sep, 0) == NA_STRING)
 	error(_("invalid separator"));
     sep = STRING_ELT(sep, 0);
-    csep = CHAR(sep);
+    csep = translateChar((sep));
     sepw = (int) strlen(csep); /* hopefully 1 */
 
     /* Any zero-length argument gives zero-length result */
@@ -362,6 +363,7 @@ SEXP attribute_hidden do_filepath(SEXP call, SEXP op, SEXP args, SEXP env)
     }
     R_FreeStringBufferL(&cbuff);
     UNPROTECT(1);
+    vmaxset(vmax);
     return ans;
 }
 

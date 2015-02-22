@@ -1023,8 +1023,12 @@ static void ReleaseLargeFreeVectors()
 	SEXP s = NEXT_NODE(R_GenHeap[node_class].New);
 	while (s != R_GenHeap[node_class].New) {
 	    SEXP next = NEXT_NODE(s);
-	    if (CHAR(s) != NULL) {
+	    if ((void *)DATAPTR(s) != NULL) {
 		R_size_t size;
+		if (TYPEOF(s) == CHARSXP){
+		    printf("Releasing Large CHARSXP!\n");
+		    error("Releasing Large CHARSXP!\n");
+		}
 #ifdef PROTECTCHECK
 		if (TYPEOF(s) == FREESXP)
 		    size = XLENGTH(s);
@@ -1620,9 +1624,13 @@ static void RunGenCollect(R_size_t size_needed)
     FORWARD_NODE(R_FalseValue);
     FORWARD_NODE(R_LogicalNAValue);
 
-    if (R_SymbolTable != NULL)             /* in case of GC during startup */
-	for (i = 0; i < HSIZE; i++)        /* Symbol table */
-	    FORWARD_NODE(R_SymbolTable[i]);
+    /* Symbol Table */
+    if (R_StringTable != NULL){            /* in case of GC during startup */
+	SEXP symsxp;
+	TRAVERSE_SYMBOLTABLE(symsxp) {
+	    FORWARD_NODE(symsxp);
+	}END_TRAVERSE_SYMBOLTABLE;
+    }
 
     if (R_CurrentExpr != NULL)	           /* Current expression */
 	FORWARD_NODE(R_CurrentExpr);
@@ -1702,33 +1710,19 @@ static void RunGenCollect(R_size_t size_needed)
 
     DEBUG_CHECK_NODE_COUNTS("after processing forwarded list");
 
-    /* process CHARSXP cache */
-    if (R_StringHash != NULL) /* in case of GC during initialization */
+    /* process CHARSXP cache in StringTable */
+    if (R_StringTable != NULL) /* in case of GC during initialization */
     {
-	SEXP t;
-	int nc = 0;
-	for (i = 0; i < LENGTH(R_StringHash); i++) {
-	    s = VECTOR_ELT(R_StringHash, i);
-	    t = R_NilValue;
-	    while (s != R_NilValue) {
-		if (! NODE_IS_MARKED(CXHEAD(s))) { /* remove unused CHARSXP and cons cell */
-		    if (t == R_NilValue) /* head of list */
-			VECTOR_ELT(R_StringHash, i) = CXTAIL(s);
-		    else
-			CXTAIL(t) = CXTAIL(s);
-		    s = CXTAIL(s);
-		    continue;
-		}
-		FORWARD_NODE(s);
-		FORWARD_NODE(CXHEAD(s));
-		t = s;
-		s = CXTAIL(s);
+	SEXP charsxp;
+	TRAVERSE_STRINGTABLE_CHARSXP(charsxp){
+	    if (!NODE_IS_MARKED(charsxp)){
+		R_STDelCHAR(CHAR(charsxp));
+	    } else {
+		FORWARD_NODE(charsxp);
 	    }
-	    if(VECTOR_ELT(R_StringHash, i) != R_NilValue) nc++;
-	}
-	SET_TRUELENGTH(R_StringHash, nc); /* SET_HASHPRI, really */
+	} END_TRAVERSE_STRINGTABLE;
     }
-    FORWARD_NODE(R_StringHash);
+    /* FORWARD_NODE(R_StringTable);*/ /* Twice? */
     PROCESS_NODES();
 
 #ifdef PROTECTCHECK
@@ -2713,9 +2707,9 @@ SEXP allocVector3(SEXPTYPE type, R_xlen_t length, R_allocator_t *allocator)
     }
     else if (type == CHARSXP || type == intCHARSXP) {
 #if VALGRIND_LEVEL > 0
-	VALGRIND_MAKE_MEM_UNDEFINED(CHAR(s), actual_size);
+	/*VALGRIND_MAKE_MEM_UNDEFINED(CHAR(s), actual_size); */
 #endif
-	CHAR_RW(s)[length] = 0;
+	/*CHAR_RW(s)[length] = 0;*/ /* We do this later in stringtable.c:SlotInsElem */
     }
 #if VALGRIND_LEVEL > 0
     else if (type == REALSXP)
@@ -2733,9 +2727,9 @@ SEXP allocVector3(SEXPTYPE type, R_xlen_t length, R_allocator_t *allocator)
 }
 
 /* For future hiding of allocVector(CHARSXP) */
-SEXP attribute_hidden allocCharsxp(R_len_t len)
+SEXP attribute_hidden allocCharsxp(const char *name, R_len_t len)
 {
-    return allocVector(intCHARSXP, len);
+    return R_STInsChrStr(allocVector(intCHARSXP, sizeof(char *)), name, len);
 }
 
 SEXP allocList(int n)

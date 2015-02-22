@@ -1984,6 +1984,7 @@ SEXP attribute_hidden do_gzfile(SEXP call, SEXP op, SEXP args, SEXP env)
     Rconnection con = NULL;
     int type = PRIMVAL(op);
     int subtype = 0;
+    const void *vmax = vmaxget();
 
     checkArity(op, args);
     sfile = CAR(args);
@@ -2009,7 +2010,8 @@ SEXP attribute_hidden do_gzfile(SEXP call, SEXP op, SEXP args, SEXP env)
 	if(compress == NA_LOGICAL || abs(compress) > 9)
 	    error(_("invalid '%s' argument"), "compress");
     }
-    open = CHAR(STRING_ELT(sopen, 0)); /* ASCII */
+    /*open = CHAR(STRING_ELT(sopen, 0));*/ /* ASCII */
+    open = translateChar(STRING_ELT(sopen, 0));
     if (type == 0 && (!open[0] || open[0] == 'r')) {
 	/* check magic no */
 	FILE *fp = fopen(R_ExpandFileName(file), "rb");
@@ -2026,8 +2028,10 @@ SEXP attribute_hidden do_gzfile(SEXP call, SEXP op, SEXP args, SEXP env)
 		if(!memcmp(buf, "]\0\0\200\0", 5)) {
 		    type = 2; subtype = 1;
 		}
-		if((buf[0] == '\x89') && !strncmp(buf+1, "LZO", 3))
+		if((buf[0] == '\x89') && !strncmp(buf+1, "LZO", 3)){
+		    vmaxset(vmax);
 		    error(_("this is a %s-compressed file which this build of R does not support"), "lzop");
+		}
 	    }
 	}
     }
@@ -2057,6 +2061,7 @@ SEXP attribute_hidden do_gzfile(SEXP call, SEXP op, SEXP args, SEXP env)
 	Rboolean success = con->open(con);
 	if(!success) {
 	    con_destroy(ncon);
+	    vmaxset(vmax);
 	    error(_("cannot open the connection"));
 	}
     }
@@ -2079,6 +2084,7 @@ SEXP attribute_hidden do_gzfile(SEXP call, SEXP op, SEXP args, SEXP env)
     setAttrib(ans, R_ConnIdSymbol, con->ex_ptr);
     R_RegisterCFinalizerEx(con->ex_ptr, conFinalizer, FALSE);
     UNPROTECT(3);
+    vmaxset(vmax);
 
     return ans;
 }
@@ -4968,6 +4974,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 #ifdef HAVE_INTERNET
     UrlScheme type = HTTPsh;	/* -Wall */
 #endif
+    const void *vmax = vmaxget();
 
     checkArity(op, args);
     scmd = CAR(args);
@@ -4975,16 +4982,19 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	error(_("invalid '%s' argument"), "description");
     if(length(scmd) > 1)
 	warning(_("only first element of 'description' argument used"));
-    url = CHAR(STRING_ELT(scmd, 0)); /* ASCII */
+    /*url = CHAR(STRING_ELT(scmd, 0)); *//* ASCII */
+    url = translateChar(STRING_ELT(scmd, 0));
+    
 #ifdef Win32
     if(PRIMVAL(op) == 1 && !IS_ASCII(STRING_ELT(scmd, 0)) ) {
 	ienc = CE_UTF8;
 	url = translateCharUTF8(STRING_ELT(scmd, 0));
     } else {
 	ienc = getCharCE(STRING_ELT(scmd, 0));
-	if(ienc == CE_UTF8)
-	    url = CHAR(STRING_ELT(scmd, 0));
-	else
+	if(ienc == CE_UTF8){
+	    /*url = CHAR(STRING_ELT(scmd, 0));*/
+	    url = translateChar(STRING_ELT(scmd, 0));
+	} else
 	    url = translateChar(STRING_ELT(scmd, 0));
     }
 #else
@@ -5000,20 +5010,29 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 #endif
 
     sopen = CADR(args);
-    if(!isString(sopen) || length(sopen) != 1)
+    if(!isString(sopen) || length(sopen) != 1){
+	vmaxset(vmax);
 	error(_("invalid '%s' argument"), "open");
-    open = CHAR(STRING_ELT(sopen, 0)); /* ASCII */
+    }
+    /*open = CHAR(STRING_ELT(sopen, 0));*/ /* ASCII */
+    open = translateChar(STRING_ELT(sopen, 0)); /* ASCII */
     block = asLogical(CADDR(args));
-    if(block == NA_LOGICAL)
+    if(block == NA_LOGICAL){
+	vmaxset(vmax);
 	error(_("invalid '%s' argument"), "block");
+    }
     enc = CADDDR(args);
     if(!isString(enc) || length(enc) != 1 ||
-       strlen(CHAR(STRING_ELT(enc, 0))) > 100) /* ASCII */
+       strlen(CHAR(STRING_ELT(enc, 0))) > 100){ /* ASCII */
 	error(_("invalid '%s' argument"), "encoding");
+	vmaxset(vmax);
+    }
     if(PRIMVAL(op) == 1) {
 	raw = asLogical(CAD4R(args));
-	if(raw == NA_LOGICAL)
+	if(raw == NA_LOGICAL){
+	    vmaxset(vmax);
 	    error(_("invalid '%s' argument"), "raw");
+	}
     }
 
     if(PRIMVAL(op) == 0) {
@@ -5023,6 +5042,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 #ifdef Win32
 	    urlmeth = 1;
 #else
+	    vmaxset(vmax);
 	    error(_("method = \"wininet\" is only supported on Windows"));
 #endif    
 	} 
@@ -5051,6 +5071,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 //	error("ftps:// URLs are not supported by the default method:\n   consider url(method = \"libcurl\")");
 #else
+	vmaxset(vmax);
 	error("ftps:// URLs are not supported");
 #endif
 #ifdef Win32
@@ -5071,6 +5092,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 //	    error("https:// URLs are not supported by the default method:\n  consider url(method = \"libcurl\")");
 # else
+	vmaxset(vmax);
 	error("https:// URLs are not supported");
 # endif
 #endif
@@ -5096,6 +5118,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 #ifdef HAVE_CURL_CURL_H
 	    con = R_newCurlUrl(url, strlen(open) ? open : "r", 0);
 #else
+	    vmaxset(vmax);
 	    error("url(method = \"libcurl\") is not supported on this platform");
 #endif
 	} else {
@@ -5167,6 +5190,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	    }
 	    class2 = "file";
 	} else {
+	    vmaxset(vmax);
 	    error(_("URL scheme unsupported by this method"));
 	}
     }
@@ -5189,6 +5213,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
     if(strlen(open)) {
 	Rboolean success = con->open(con);
 	if(!success) {
+	    vmaxset(vmax);
 	    con_destroy(ncon);
 	    error(_("cannot open the connection"));
 	}
@@ -5202,6 +5227,7 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
     setAttrib(ans, R_ConnIdSymbol, con->ex_ptr);
     R_RegisterCFinalizerEx(con->ex_ptr, conFinalizer, FALSE);
     UNPROTECT(3);
+    vmaxset(vmax);
 
     return ans;
 }

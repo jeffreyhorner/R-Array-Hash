@@ -786,7 +786,7 @@ void setup_Rmainloop(void)
     InitParser();
     InitTempDir(); /* must be before InitEd */
     InitMemory();
-    InitStringHash(); /* must be before InitNames */
+    InitStringTable(); /* must be before InitNames */
     InitNames();
     InitBaseEnv();
     InitGlobalEnv();

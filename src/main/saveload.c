@@ -532,7 +532,7 @@ static void RemakeNextSEXP(FILE *fp, NodeInfo *node, int version, InputRoutines 
 	break;
     case CHARSXP:
 	len = m->InInteger(fp, d);
-	s = allocCharsxp(len); /* This is not longer correct */
+	s = allocCharsxp(NULL, len); /* This is not longer correct */
 	R_AllocStringBuffer(len, &(d->buffer));
 	/* skip over the string */
 	/* string = */ m->InString(fp, d);

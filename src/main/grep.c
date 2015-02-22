@@ -217,7 +217,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 		    continue;
 		}
 		if (useBytes)
-		    buf = CHAR(STRING_ELT(x, i));
+		    buf = translateChar(STRING_ELT(x, i));
 		else if (use_UTF8) {
 		    buf = translateCharUTF8(STRING_ELT(x, i));
 		    if (!utf8Valid(buf)) {
@@ -285,7 +285,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 	} else if (fixed_opt) {
 	    const char *laststart, *ebuf;
 	    if (useBytes)
-		split = CHAR(STRING_ELT(tok, itok));
+		split = translateChar(STRING_ELT(tok, itok));
 	    else if (use_UTF8) {
 		split = translateCharUTF8(STRING_ELT(tok, itok));
 		if (!utf8Valid(split))
@@ -307,7 +307,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 		}
 
 		if (useBytes)
-		    buf = CHAR(STRING_ELT(x, i));
+		    buf = translateChar(STRING_ELT(x, i));
 		else if (use_UTF8) {
 		    buf = translateCharUTF8(STRING_ELT(x, i));
 		    if (!utf8Valid(buf)) {
@@ -384,7 +384,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 
 	    if (use_UTF8) options = PCRE_UTF8;
 	    if (useBytes)
-		split = CHAR(STRING_ELT(tok, itok));
+		split = translateChar(STRING_ELT(tok, itok));
 	    else if (use_UTF8) {
 		split = translateCharUTF8(STRING_ELT(tok, itok));
 		if (!utf8Valid(split))
@@ -418,7 +418,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 		}
 
 		if (useBytes)
-		    buf = CHAR(STRING_ELT(x, i));
+		    buf = translateChar(STRING_ELT(x, i));
 		else if (use_UTF8) {
 		    buf = translateCharUTF8(STRING_ELT(x, i));
 		    if (!utf8Valid(buf)) {
@@ -564,7 +564,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 	    */
 	    /* never use_UTF8 */
 	    if (useBytes)
-		split = CHAR(STRING_ELT(tok, itok));
+		split = translateChar(STRING_ELT(tok, itok));
 	    else {
 		split = translateChar(STRING_ELT(tok, itok));
 		if (mbcslocale && !mbcsValid(split))
@@ -582,7 +582,7 @@ SEXP attribute_hidden do_strsplit(SEXP call, SEXP op, SEXP args, SEXP env)
 		}
 		/* never use_UTF8 */
 		if (useBytes)
-		    buf = CHAR(STRING_ELT(x, i));
+		    buf = translateChar(STRING_ELT(x, i));
 		else {
 		    buf = translateChar(STRING_ELT(x, i));
 		    if (mbcslocale && !mbcsValid(buf)) {
@@ -1587,8 +1587,10 @@ SEXP attribute_hidden do_gsub(SEXP call, SEXP op, SEXP args, SEXP env)
     }
 
     if (useBytes) {
-	spat = CHAR(STRING_ELT(pat, 0));
-	srep = CHAR(STRING_ELT(rep, 0));
+	/*spat = CHAR(STRING_ELT(pat, 0));
+	srep = CHAR(STRING_ELT(rep, 0)); */
+	spat = translateChar(STRING_ELT(pat, 0));
+	srep = translateChar(STRING_ELT(rep, 0));
     } else if (use_WC) ;
     else if (use_UTF8) {
 	spat = translateCharUTF8(STRING_ELT(pat, 0));
@@ -1654,7 +1656,8 @@ SEXP attribute_hidden do_gsub(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 
 	if (useBytes)
-	    s = CHAR(STRING_ELT(text, i));
+	    /* s = CHAR(STRING_ELT(text, i));*/
+	    s = translateChar(STRING_ELT(text, i));
 	else if (use_WC) ;
 	else if (use_UTF8) {
 	    s = translateCharUTF8(STRING_ELT(text, i));

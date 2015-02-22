@@ -2227,9 +2227,13 @@ static int char_getc(void)
 static
 SEXP R_ParseLatex(SEXP text, ParseStatus *status, SEXP srcfile)
 {
-    nextchar_parse = CHAR(STRING_ELT(text, 0));
+    SEXP ans;
+    const void *vmax = vmaxget();
+    nextchar_parse = translateChar(STRING_ELT(text, 0));
     ptr_getc = char_getc;
-    return ParseLatex(status, srcfile);
+    ans = ParseLatex(status, srcfile);
+    vmaxset(vmax);
+    return ans;
 }
 
 /*----------------------------------------------------------------------------

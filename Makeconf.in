@@ -103,9 +103,14 @@ ALL_CFLAGS_LO = $(R_XTRA_CFLAGS) $(R_OPENMP_CFLAGS) $(CPICFLAGS) $(SHLIB_CFLAGS)
 ALL_FFLAGS_LO = $(R_XTRA_FFLAGS) $(R_OPENMP_FFLAGS) $(FPICFLAGS) $(SHLIB_FFLAGS) $(FFLAGS)
 
 .SUFFIXES:
-.SUFFIXES: .c .f .m .d .o
+.SUFFIXES: .c .cc .f .m .d .o
 
 @r_cc_rules_frag@
+.cc.o:
+	$(CXX) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c $< -o $@
+.cc.d:
+	@echo "making $@ from $<"
+	@$(CXX) -M $(ALL_CPPFLAGS) $< > $@
 .f.o:
 	$(F77) $(ALL_FFLAGS) -c $< -o $@
 

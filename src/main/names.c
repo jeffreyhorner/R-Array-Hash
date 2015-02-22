@@ -1137,10 +1137,6 @@ SEXP attribute_hidden installDDVAL(int n) {
 /* initialize the symbol table */
 void attribute_hidden InitNames()
 {
-    /* allocate the symbol table */
-    if (!(R_SymbolTable = (SEXP *) calloc(HSIZE, sizeof(SEXP))))
-	R_Suicide("couldn't allocate memory for symbol table");
-
     /* R_UnboundValue */
     R_UnboundValue = allocSExp(SYMSXP);
     SET_SYMVALUE(R_UnboundValue, R_UnboundValue);
@@ -1160,17 +1156,16 @@ void attribute_hidden InitNames()
     /* Note: we don't want NA_STRING to be in the CHARSXP cache, so that
        mkChar("NA") is distinct from NA_STRING */
     /* NA_STRING */
-    NA_STRING = allocCharsxp(strlen("NA"));
-    strcpy(CHAR_RW(NA_STRING), "NA");
+
+    /* Now done in InitStringTable */
+    /*NA_STRING = allocCharsxp("NA",strlen("NA"));*/
+
     SET_CACHED(NA_STRING);  /* Mark it */
     R_print.na_string = NA_STRING;
     /* R_BlankString */
     R_BlankString = mkChar("");
     R_BlankScalarString = ScalarString(R_BlankString);
     MARK_NOT_MUTABLE(R_BlankScalarString);
-
-    /* Initialize the symbol Table */
-    for (int i = 0; i < HSIZE; i++) R_SymbolTable[i] = R_NilValue;
 
     /* Set up a set of globals so that a symbol table search can be
        avoided when matching something like dim or dimnames. */
@@ -1188,71 +1183,6 @@ void attribute_hidden InitNames()
     R_initialize_bcode();
 }
 
-
-/*  install - probe the symbol table */
-/*  If "name" is not found, it is installed in the symbol table.
-    The symbol corresponding to the string "name" is returned. */
-
-SEXP install(const char *name)
-{
-    SEXP sym;
-    int i, hashcode;
-
-    hashcode = R_Newhashpjw(name);
-    i = hashcode % HSIZE;
-    /* Check to see if the symbol is already present;  if it is, return it. */
-    for (sym = R_SymbolTable[i]; sym != R_NilValue; sym = CDR(sym))
-	if (strcmp(name, CHAR(PRINTNAME(CAR(sym)))) == 0) return (CAR(sym));
-    /* Create a new symbol node and link it into the table. */
-    if (*name == '\0')
-	error(_("attempt to use zero-length variable name"));
-    if (strlen(name) > MAXIDSIZE)
-	error(_("variable names are limited to %d bytes"), MAXIDSIZE);
-    sym = mkSYMSXP(mkChar(name), R_UnboundValue);
-    SET_HASHVALUE(PRINTNAME(sym), hashcode);
-    SET_HASHASH(PRINTNAME(sym), 1);
-
-    R_SymbolTable[i] = CONS(sym, R_SymbolTable[i]);
-    return (sym);
-}
-
-SEXP installChar(SEXP charSXP)
-{
-    SEXP sym;
-    int i, hashcode;
-
-    if( !HASHASH(charSXP) ) {
-        hashcode = R_Newhashpjw(CHAR(charSXP));
-        SET_HASHVALUE(charSXP, hashcode);
-        SET_HASHASH(charSXP, 1);
-    } else {
-        hashcode = HASHVALUE(charSXP);
-    }
-    i = hashcode % HSIZE;
-    /* Check to see if the symbol is already present;  if it is, return it. */
-    for (sym = R_SymbolTable[i]; sym != R_NilValue; sym = CDR(sym))
-        if (strcmp(CHAR(charSXP), CHAR(PRINTNAME(CAR(sym)))) == 0) return (CAR(sym));
-    /* Create a new symbol node and link it into the table. */
-    int len = LENGTH(charSXP);
-    if (len == 0)
-        error(_("attempt to use zero-length variable name"));
-    if (len > MAXIDSIZE)
-        error(_("variable names are limited to %d bytes"), MAXIDSIZE);
-    if (IS_ASCII(charSXP) || (IS_UTF8(charSXP) && utf8locale) ||
-                                        (IS_LATIN1(charSXP) && latin1locale) )
-        sym = mkSYMSXP(charSXP, R_UnboundValue);
-    else {
-        /* This branch is to match behaviour of install (which is older):
-           symbol C-string names are always interpreted as if
-           in the native locale, even when they are not in the native locale */
-        sym = mkSYMSXP(mkChar(CHAR(charSXP)), R_UnboundValue);
-        SET_HASHVALUE(PRINTNAME(sym), hashcode);
-        SET_HASHASH(PRINTNAME(sym), 1);
-    }
-
-    R_SymbolTable[i] = CONS(sym, R_SymbolTable[i]);
-    return (sym);
-}
 
 #define maxLength 512
 attribute_hidden

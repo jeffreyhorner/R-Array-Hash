@@ -10,25 +10,32 @@ Volume 91 Pages 113-122
 
 # Configure and Build
 
+1. You will want to download and install Google's Farmhash library, located here:
+https://code.google.com/p/farmhash/. Step 2 below presumes you have installed it 
+in /usr/local/.
+
+
+2. Configure and build with the following:
+
 For debugging and development:
 
   ```
   CC="ccache gcc"
-  CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
+  CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID -I/usr/local/include" \
   CXX="ccache g++"                                \
   CXXFLAGS="-ggdb -pipe -Wall -pedantic"          \
   FC="ccache gfortran"                            \
   F77="ccache gfortran"                           \
-  LIBS="-lbfd" \
+  LIBS="-lbfd -L/usr/local/lib -lfarmhash" \
   ./configure --enable-memory-profiling --without-recommended-packages \
-    --with-valgrind-instrumentation=2   
+    --with-valgrind-instrumentation=2 --enable-R-shlib
   make -j4
   ```
 
 For speed (copied from ubuntu's R package):
   ```
     CC="gcc -std=gnu99" \
-    CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
+    CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g -I/usr/local/" \
     LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-z,relro" \
     F77=gfortran  \
     FFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4"  \
@@ -36,6 +43,7 @@ For speed (copied from ubuntu's R package):
     CXXFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
     FC="gfortran" \
     FCFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4" \
+    LIBS="-L/usr/local/lib -lfarmhash" \
     LIBnn=lib \
     ./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
     --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \

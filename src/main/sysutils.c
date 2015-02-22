@@ -908,7 +908,16 @@ const char *translateChar(SEXP x)
 	error(_("'%s' must be called on a CHARSXP"), "translateChar");
     nttype_t t = needsTranslation(x);
     const char *ans = CHAR(x);
-    if (t == NT_NONE) return ans;
+    /* if (t == NT_NONE) return ans;*/
+
+    /* Always R_alloc */
+    if (t == NT_NONE){
+	size_t len = length(x);
+	char *p = R_alloc(len+1, 1);
+	memcpy(p, CHAR(x), len);
+	p[len] = 0;
+	return p;
+    }
 
     R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
     translateToNative(ans, &cbuff, t);
