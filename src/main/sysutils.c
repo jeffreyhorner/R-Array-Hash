@@ -910,6 +910,9 @@ const char *translateChar(SEXP x)
     const char *ans = CHAR(x);
     /* if (t == NT_NONE) return ans;*/
 
+    /* Check for NA_STRING */
+    if (x == NA_STRING) return ans;
+
     /* Always R_alloc */
     if (t == NT_NONE){
 	size_t len = length(x);

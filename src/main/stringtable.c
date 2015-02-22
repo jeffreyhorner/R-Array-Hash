@@ -65,7 +65,7 @@ void attribute_hidden InitStringTable()
     ST_NA_STRING = calloc(1,sizeof(R_str_elem_t) + 3);
     ST_NA_STRING->symsxp = NULL;
     ST_NA_STRING->charsxp = NA_STRING;
-    ST_NA_STRING->len = 3;
+    ST_NA_STRING->len = 2;
     memcpy(ELEMENT_CHAR(ST_NA_STRING),"NA",2);
     ELEMENT_CHAR(ST_NA_STRING)[2] = 0;
     SET_CHAR_PTR(NA_STRING, ELEMENT_CHAR(ST_NA_STRING));
@@ -153,14 +153,10 @@ const char *R_STCHAR(SEXP charsxp){
     
     e = (R_str_elem_t *)str - 1;
     if (e->charsxp != charsxp){
-	error("CHARSXP MISMATCH!");
+	const char *str2 = *(char **)DATAPTR(e->charsxp);
+	error("CHARSXP MISMATCH! '%s' '%s'", str, str2);
     }
     
-    if (e->len == 2 && strcmp(str,"NA") == 0){
-	printf("CHAR(NA)");
-	(e->charsxp == NA_STRING)? printf(" NA_STRING\n"): printf("\n");
-    }
-
     return str;
 }
 
@@ -347,10 +343,6 @@ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
     Rboolean embedNul = FALSE, is_ascii = TRUE;
     R_str_elem_t *e;
     R_len_t slotn;
-
-    if (len == 2 && strncmp(name,"NA",2)==0){
-	printf("mkCharLenCE(NA)\n");
-    }
 
     switch(enc){
     case CE_NATIVE:
