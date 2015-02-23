@@ -29,7 +29,7 @@ For debugging and development:
   LIBS="-lbfd -L/usr/local/lib -lfarmhash" \
   ./configure --enable-memory-profiling --without-recommended-packages \
     --with-valgrind-instrumentation=2 --enable-R-shlib
-  make -j4
+  time make -j4
   ```
 
 For speed (copied from ubuntu's R package):
@@ -49,5 +49,5 @@ For speed (copied from ubuntu's R package):
     --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
     --enable-memory-profiling \
     --build x86_64-linux-gnu build_alias=x86_64-linux-gnu
-  make -j4
+  time make -j4
   ```

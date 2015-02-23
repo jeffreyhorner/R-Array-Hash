@@ -13,16 +13,16 @@
 
 /* Use __e__ to acess the current element */
 #define TRAVERSE_ST_SLOT(x) {\
+	size_t __esize__; \
 	R_len_t __slotn__ = (x); \
 	R_str_slot_t *__slot__ = R_StringTable->slot[__slotn__]; \
 	if (__slot__) { \
 	R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1); \
 	R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size); \
 	while (__e__ != __end__) { \
-	    if (__e__ > __end__) \
-		R_Suicide("Bad pointer!");
+	    __esize__ = __e__->size;
 
-#define END_TRAVERSE_ST_SLOT __e__ = (R_str_elem_t *)((char *)__e__ + __e__->size); } } }
+#define END_TRAVERSE_ST_SLOT __e__ = (R_str_elem_t *)((char *)__e__ + __esize__); } } }
 
 #define ELEMENT_CHAR(e) ((char *)((R_str_elem_t *)e+1))
 #define FIRST_ELEMENT(s) ((R_str_elem_t *)((R_str_slot_t *)s+1))
@@ -42,17 +42,27 @@ static inline R_len_t ST_SLOT(const char *s,R_len_t len){
 } while(0)
 
 
-#define STSIZE 4119
+#define STSIZE 65536
 
 #define SET_CHAR_PTR(c,s) *((char **)DATAPTR(c)) = s
+
+/* Encodings on R_str_elem_t ints */
+#define ST_SET_UTF8(x) ((x)->encoding |= UTF8_MASK)
+#define ST_SET_LATIN1(x) ((x)->encoding |= LATIN1_MASK)
+#define ST_SET_BYTES(x) ((x)->encoding |= BYTES_MASK)
+#define ST_ENC_KNOWN(x) ((x)->encoding & (LATIN1_MASK | UTF8_MASK))
+#define ST_IS_BYTES(x) ((x)->encoding & BYTES_MASK)
 
 static R_str_elem_t *ST_NA_STRING;
 
 void attribute_hidden InitStringTable()
 {
     R_StringTable = 
-	(R_str_table_t *)calloc(1,sizeof(*R_StringTable) + STSIZE * sizeof(R_str_slot_t *));
+	(R_str_table_t *)calloc(1,sizeof(*R_StringTable));
     if (!R_StringTable)
+    	R_Suicide("couldn't allocate memory for string table");
+    R_StringTable->slot = (R_str_slot_t **)calloc(STSIZE,sizeof(R_str_slot_t *));
+    if (!R_StringTable->slot)
     	R_Suicide("couldn't allocate memory for string table");
     R_StringTable->len = STSIZE;
     
@@ -74,23 +84,51 @@ void attribute_hidden InitStringTable()
     R_print.na_string = NA_STRING;
 }
 
+#include <stdlib.h>
+static size_t st_multiple(size_t requested_size, size_t multiple){
+    return (
+	( 
+	    requested_size/multiple + 
+	    (((requested_size % multiple)>0)? 1: 0)
+	) * multiple
+    );
+}
+static void *st_malloc(size_t size){
+    void *memptr;
+    if (posix_memalign(&memptr, 8, size)==0) return memptr;
+    return NULL;
+}
+
+static void *st_realloc(void *oldmem, size_t oldsize, size_t newsize){
+    void *newmem;
+
+    if (posix_memalign(&newmem, 8, newsize)!=0) return NULL;
+
+    memcpy(newmem, oldmem, oldsize);
+
+    free(oldmem);
+
+    return newmem;
+}
+
 static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, R_len_t len)
 {
     R_str_slot_t *slot;
     R_str_elem_t *e;
-    size_t esize;
+    size_t esize, size;
 
     slot = R_StringTable->slot[slotn];
     /* TODO: determine best word alignment: 8, 16, ? */
-    esize = sizeof(R_str_elem_t) + BYTE2VEC(len + 1)*sizeof(VECREC);
+    esize = st_multiple(sizeof(R_str_elem_t) + BYTE2VEC(len + 1)*sizeof(VECREC), 8);
 
     if (slot){
 	R_str_elem_t *elem, *last_elem;
 	size_t oldsize = slot->size;
-	slot = (R_str_slot_t *)realloc(slot,oldsize + esize);
+	size = st_multiple(oldsize + esize, 8);
+	slot = (R_str_slot_t *)st_realloc(slot,oldsize, size);
 	if (!slot)
 	    error("couldn't allocate memory for string table");
-	slot->size = oldsize + esize;
+	slot->size = size;
 	last_elem = (R_str_elem_t *)((char *)slot + oldsize);
 
 	/* Fix up charsxp pointers to str for all but last element*/
@@ -104,10 +142,12 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
 	}
 	e = last_elem;
     } else {
-	slot = (R_str_slot_t *)calloc(1,sizeof(R_str_slot_t) + esize);
+	size = st_multiple(sizeof(R_str_slot_t) + esize, 8);
+	esize = size - sizeof(R_str_slot_t);
+	slot = (R_str_slot_t *)st_malloc(size);
 	if (!slot)
 	    error("couldn't allocate memory for string table");
-	slot->size = sizeof(R_str_slot_t) + esize;
+	slot->size = size;
 	e = FIRST_ELEMENT(slot);
     }
     R_StringTable->slot[slotn] = slot;
@@ -116,6 +156,7 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
     e->charsxp = charSXP;
     e->size = esize;
     e->len = len;
+    e->encoding = 0;
     memcpy(ELEMENT_CHAR(e),name,len);
     ELEMENT_CHAR(e)[len] = 0;
     SET_CHAR_PTR(charSXP, ELEMENT_CHAR(e));
@@ -160,14 +201,22 @@ const char *R_STCHAR(SEXP charsxp){
     return str;
 }
 
-#ifdef DEBUG_SHOW_CHARSXP_CACHE
 /* Call this from gdb with
 
        call do_show_cache(10)
 
    for the first 10 cache chains in use. */
-void do_show_cache(int n)
+void do_show_cache()
 {
+    for (R_len_t i=0; i < R_StringTable->len; i++){
+	size_t sum=0;
+	TRAVERSE_ST_SLOT(i)
+	    sum++;
+	END_TRAVERSE_ST_SLOT
+	printf("%lu, ", sum);
+    }
+    printf("\n");
+}
 //    int i, j;
 //    Rprintf("Cache size: %d\n", LENGTH(R_StringHash));
 //    Rprintf("Cache pri:  %d\n", HASHPRI(R_StringHash));
@@ -189,7 +238,7 @@ void do_show_cache(int n)
 //	    j++;
 //	}
 //    }
-}
+//}
 
 void do_write_cache()
 {
@@ -218,7 +267,6 @@ void do_write_cache()
 //	fclose(f);
 //    }
 }
-#endif /* DEBUG_SHOW_CHARSXP_CACHE */
 
 
 /*  install - probe the symbol table */
@@ -231,6 +279,7 @@ SEXP install(const char *name)
     size_t len;
     R_str_elem_t *e;
     R_len_t slotn;
+    const char *estr;
 
     /* Quick sanity check */
     if (*name == '\0')
@@ -244,18 +293,19 @@ SEXP install(const char *name)
     slotn = ST_SLOT(name,len);
     TRAVERSE_ST_SLOT(slotn)
     {
-	e = __e__;
-	if (e->charsxp){
-	    if (e->len == (R_len_t)len && strcmp(ELEMENT_CHAR(e),name)==0){
+	if (__e__->charsxp && __e__->len == len){
+	    estr = ELEMENT_CHAR(__e__);
+	    sym = __e__->symsxp;
+	    if ((estr == name) || memcmp(ELEMENT_CHAR(__e__),name,len)==0){
 		/* Symbol already exists */
-		if (e->symsxp) return e->symsxp;
+		if (sym) return sym;
 
 		/* Charsxp exists, need to create sym. */
-		sym = mkSYMSXP(e->charsxp, R_UnboundValue);
+		sym = mkSYMSXP(__e__->charsxp, R_UnboundValue);
 		INSERT_SYMBOL(sym);
 
 		/* Add to cache */
-		e->symsxp = sym;
+		__e__->symsxp = sym;
 
 		return sym;
 	    }
@@ -273,7 +323,9 @@ SEXP install(const char *name)
 SEXP installChar(SEXP charSXP)
 {
     SEXP sym, csxp;
-    R_len_t len = LENGTH(charSXP);
+    const char *str = *(char **)DATAPTR(charSXP);
+    R_str_elem_t *e = (R_str_elem_t *)str - 1;
+    R_len_t len = e->len;
 
     if (len == 0)
         error(_("attempt to use zero-length variable name"));
@@ -288,22 +340,20 @@ SEXP installChar(SEXP charSXP)
            symbol C-string names are always interpreted as if
            in the native locale, even when they are not in the native locale */
 	csxp = mkCharLen(CHAR(charSXP), len);
+	str = *(char **)DATAPTR(csxp);
+	e = (R_str_elem_t *)str - 1;
     }
 
-    TRAVERSE_ST_SLOT(ST_SLOT(CHAR(csxp),len))
-    {
-	R_str_elem_t *e = __e__;
-	if (e->charsxp == csxp){
-	    /* Symbol already exists */
-	    if (e->symsxp) return e->symsxp;
+    if (e->charsxp == csxp){
+	/* Symbol already exists */
+	if (e->symsxp) return e->symsxp;
 
-	    sym = mkSYMSXP(e->charsxp, R_UnboundValue);
-	    INSERT_SYMBOL(sym);
-	    /* Add to cache */
-	    e->symsxp = sym;
-	    return sym;
-	}
-    } END_TRAVERSE_ST_SLOT;
+	sym = mkSYMSXP(e->charsxp, R_UnboundValue);
+	INSERT_SYMBOL(sym);
+	/* Add to cache */
+	e->symsxp = sym;
+	return sym;
+    }
     /* Should never happen */
     error(_("non-cached CHARSXP in the wild!"));
 }
@@ -330,6 +380,31 @@ SEXP mkChar(const char *name)
     return mkCharLenCE(name, (int) len, CE_NATIVE);
 }
 
+static inline SEXP traverse_st_slot(R_len_t slotn, const char *name, int len, int need_enc){
+    const char *estr;
+    size_t esize;
+    R_str_slot_t *__slot__ = R_StringTable->slot[slotn];
+    if (!__slot__) return R_NilValue;
+    R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1);
+    R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size);
+    while (__e__ != __end__) {
+	esize = __e__->size;
+	if (
+	    __e__->charsxp && 
+	    __e__->len == len &&
+	    (need_enc == (ST_ENC_KNOWN(__e__) | ST_IS_BYTES(__e__)))
+	    ) {
+	    estr = ELEMENT_CHAR(__e__);
+	    if ( (estr == name) || (memcmp(estr, name, len) == 0) )
+		return __e__->charsxp;
+	}
+
+	__e__ = (R_str_elem_t *)((char *)__e__ + esize);
+    }
+
+    return R_NilValue;
+}
+
 /* mkCharCE - make a character (CHARSXP) variable and set its
    encoding bit.  If a CHARSXP with the same string already exists in
    the global CHARSXP cache, R_StringHash, it is returned.  Otherwise,
@@ -341,8 +416,8 @@ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
     SEXP cval;
     int need_enc;
     Rboolean embedNul = FALSE, is_ascii = TRUE;
-    R_str_elem_t *e;
     R_len_t slotn;
+    R_str_elem_t *e;
 
     switch(enc){
     case CE_NATIVE:
@@ -385,35 +460,25 @@ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
     default: need_enc = 0;
     }
 
-    /* Search for a cached value. may need to put encoding bits into ST element to
-       stay on memory cache line. */
     slotn = ST_SLOT(name,len);
-    TRAVERSE_ST_SLOT(slotn)
-    {
-	e = __e__;
-	if (e->charsxp){
-	    cval = e->charsxp;
-	    if ( e->len == len &&  memcmp(ELEMENT_CHAR(e), name, len) == 0) {
-		if (need_enc == (ENC_KNOWN(cval) | IS_BYTES(cval)))
-		    return cval;
-	    }
-	}
-    } END_TRAVERSE_ST_SLOT;
+    /*cval = traverse_st_slot_stats(slotn, name, len, need_enc);*/
+    cval = traverse_st_slot(slotn, name, len, need_enc);
+    if (cval != R_NilValue) return cval;
     
     /* no cached value; need to allocate one and add to the cache */
     PROTECT(cval = allocVector(intCHARSXP, sizeof(char *)));
-    SlotInsElem(slotn,cval, name, len);
+    e = SlotInsElem(slotn,cval, name, len);
     switch(enc) {
     case CE_NATIVE:
 	break;          /* don't set encoding */
     case CE_UTF8:
-	SET_UTF8(cval);
+	SET_UTF8(cval); ST_SET_UTF8(e);
 	break;
     case CE_LATIN1:
-	SET_LATIN1(cval);
+	SET_LATIN1(cval); ST_SET_LATIN1(e);
 	break;
     case CE_BYTES:
-	SET_BYTES(cval);
+	SET_BYTES(cval); ST_SET_BYTES(e);
 	break;
     default:
 	error("unknown encoding mask: %d", enc);

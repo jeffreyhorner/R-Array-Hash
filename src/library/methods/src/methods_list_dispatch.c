@@ -385,9 +385,10 @@ static SEXP R_S_MethodsListSelect(SEXP fname, SEXP ev, SEXP mlist, SEXP f_env)
 static SEXP get_generic(SEXP symbol, SEXP rho, SEXP package)
 {
     SEXP vl, generic = R_UnboundValue, gpackage; const char *pkg; Rboolean ok;
+    const void *vmax = vmaxget();
     if(!isSymbol(symbol))
 	symbol = installChar(asChar(symbol));
-    pkg = CHAR(STRING_ELT(package, 0)); /* package is guaranteed single string */
+    pkg = translateChar(STRING_ELT(package, 0)); /* package is guaranteed single string */
 
     while (rho != R_NilValue) {
 	vl = findVarInFrame(rho, symbol);
@@ -427,6 +428,7 @@ static SEXP get_generic(SEXP symbol, SEXP rho, SEXP package)
 	    }
 	}
     }
+    vmaxset(vmax);
     return generic;
 }
 

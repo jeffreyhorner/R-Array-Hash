@@ -375,9 +375,9 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
 /* Old def */
 /* #define CHAR(x)	    ((const char *) DATAPTR(x)) */
 
-const char *R_STCHAR(SEXP charsxp);
-/*#define CHAR(x)		((const char *) *(char **)DATAPTR(x)) */
-#define CHAR(x)         R_STCHAR(x)
+/* const char *R_STCHAR(SEXP charsxp); */
+/* #define CHAR(x)         R_STCHAR(x) */
+#define CHAR(x)		((const char *) *(char **)DATAPTR(x))
 #define LOGICAL(x)	((int *) DATAPTR(x))
 #define INTEGER(x)	((int *) DATAPTR(x))
 #define RAW(x)		((Rbyte *) DATAPTR(x))
@@ -1403,6 +1403,7 @@ typedef struct {
     SEXP symsxp;
     SEXP charsxp;
     size_t size;  /* size of entire element */
+    int encoding; /* charsxp encoding for fast lookup */
     R_len_t len;  /* string length */
 } R_str_elem_t; /* string data follows element in memory */
 
@@ -1412,7 +1413,7 @@ typedef struct {
 
 typedef struct {
     R_len_t len;
-    R_str_slot_t *slot[];
+    R_str_slot_t **slot;
 } R_str_table_t;
 
 typedef struct R_sym_table {
@@ -1431,11 +1432,13 @@ R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */
 	if (!__slot__) continue; \
 	R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1); \
 	R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size); \
+	size_t __esize__; \
 	while (__e__ != __end__) { \
-	    if (__e__->charsxp) { \
+	    __esize__ = __e__->size; \
+	    if (__e__->charsxp && !__e__->symsxp) { \
 	    __charsxp__ = __e__->charsxp;
 
-#define END_TRAVERSE_STRINGTABLE }; __e__ = (R_str_elem_t *)((char *)__e__ + __e__->size); } }
+#define END_TRAVERSE_STRINGTABLE }; __e__ = (R_str_elem_t *)((char *)__e__ + __esize__); } }
 
 #define TRAVERSE_SYMBOLTABLE(s) \
     for(R_sym_table_t *__sym__=R_SymbolTable; __sym__!=NULL; __sym__=__sym__->next ) { \
@@ -1444,7 +1447,7 @@ R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */
 
 /* R_EnforceWriteBarrier - exported function to allow experimentation outside
    of memory.c */
-void R_EnforceWriteBarrier(SEXP x, SEXP old, SEXP new);
+void R_EnforceWriteBarrier(SEXP, SEXP, SEXP);
 
 #endif /* USE_RINTERNALS */
 
