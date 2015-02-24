@@ -1396,10 +1396,6 @@ void R_EnvHashInitCursor(R_EnvHashCursor *, SEXP);
 void R_EnvHashCursorNext(R_EnvHashCursor *, int *);
 void R_EnvUnHashFrame(SEXP);
 
-/* Performant string hashing function */
-size_t StringHash(const char *s, size_t len);
-int R_Newhashpjw(const char *);
-
 typedef struct {
     SEXP symsxp;
     SEXP charsxp;

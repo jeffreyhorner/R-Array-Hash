@@ -38,7 +38,7 @@ SOURCES_C = \
 	version.c \
 	g_alab_her.c g_cntrlify.c g_fontdb.c g_her_glyph.c
 
-SOURCES_CC = farmhash.cc
+SOURCES_CC =
 
 SOURCES_F =  xxxpr.f
 

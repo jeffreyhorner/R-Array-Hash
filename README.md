@@ -21,12 +21,12 @@ For debugging and development:
 
   ```
   CC="ccache gcc"
-  CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID -I/usr/local/include" \
+  CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
   CXX="ccache g++"                                \
   CXXFLAGS="-ggdb -pipe -Wall -pedantic"          \
   FC="ccache gfortran"                            \
   F77="ccache gfortran"                           \
-  LIBS="-lbfd -L/usr/local/lib -lfarmhash" \
+  LIBS="-lbfd" \
   ./configure --enable-memory-profiling --without-recommended-packages \
     --with-valgrind-instrumentation=2 --enable-R-shlib
   time make -j4

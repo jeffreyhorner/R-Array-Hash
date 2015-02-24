@@ -28,8 +28,18 @@
 #define FIRST_ELEMENT(s) ((R_str_elem_t *)((R_str_slot_t *)s+1))
 #define NEXT_ELEMENT(e) ((R_str_elem_t *)((char *)e+e->size))
 #define SLOT_END(s) ((R_str_elem_t *)((char *)s+s->size))
+static unsigned int char_hash(const char *s, int len)
+{
+    /* djb2 as from http://www.cse.yorku.ca/~oz/hash.html */
+    char *p;
+    int i;
+    unsigned int h = 5381;
+    for (p = (char *) s, i = 0; i < len; p++, i++)
+	h = ((h << 5) + h) + (*p);
+    return h;
+}
 static inline R_len_t ST_SLOT(const char *s,R_len_t len){
-     return (R_len_t)(StringHash(s,len) & (R_StringTable->len - 1));
+     return (R_len_t)(char_hash(s,len) & (R_StringTable->len - 1));
 }
 
 #define INSERT_SYMBOL(s) do { \
