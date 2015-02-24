@@ -1771,7 +1771,7 @@ void attribute_hidden R_initAsignSymbols(void)
 	asymSymbol[i] = install(asym[i]);
 
     /*R_ReplaceFunsTable = R_NewHashedEnv(R_EmptyEnv, ScalarInteger(1099));*/
-    R_ReplaceFunsTable = R_NewHashedEnv(R_EmptyEnv);
+    R_ReplaceFunsTable = R_NewHashedEnv(R_EmptyEnv, ScalarInteger(1024));
     R_PreserveObject(R_ReplaceFunsTable);
 
     R_SubsetSym = install("[");

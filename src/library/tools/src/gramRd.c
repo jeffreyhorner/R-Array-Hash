@@ -3514,7 +3514,7 @@ static SEXP ParseRd(ParseStatus *status, SEXP srcfile, Rboolean fragment, SEXP m
 	macros = InstallKeywords();
 	
     PROTECT(macros);
-    PROTECT(parseState.xxMacroList = R_NewHashedEnv(macros));
+    PROTECT(parseState.xxMacroList = R_NewHashedEnv(macros, ScalarInteger(0)));
     UNPROTECT_PTR(macros);
     
     parseState.Value = R_NilValue;
@@ -3732,11 +3732,10 @@ static keywords[] = {
 static SEXP InstallKeywords()
 {
     int i;
-    /* int num; */
+    int num;
     SEXP result, name, val;
-    /* num = sizeof(keywords)/sizeof(keywords[0]); */
-    /*PROTECT(result = R_NewHashedEnv(R_EmptyEnv, ScalarInteger(num)));*/
-    PROTECT(result = R_NewHashedEnv(R_EmptyEnv));
+    num = sizeof(keywords)/sizeof(keywords[0]);
+    PROTECT(result = R_NewHashedEnv(R_EmptyEnv, ScalarInteger(num)));
     for (i = 0; keywords[i].name; i++) {
         PROTECT(name = install(keywords[i].name));
         PROTECT(val = ScalarInteger(keywords[i].token));

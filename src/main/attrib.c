@@ -656,7 +656,7 @@ static SEXP R_S4_extends_table = 0;
 static SEXP cache_class(const char *class, SEXP klass)
 {
     if(!R_S4_extends_table) {
-	R_S4_extends_table = R_NewHashedEnv(R_NilValue);
+	R_S4_extends_table = R_NewHashedEnv(R_NilValue, ScalarInteger(0));
 	R_PreserveObject(R_S4_extends_table);
     }
     if(isNull(klass)) { /* retrieve cached value */
@@ -676,7 +676,7 @@ static SEXP S4_extends(SEXP klass)
     if(!s_extends) {
 	s_extends = install("extends");
 	s_extendsForS3 = install(".extendsForS3");
-	R_S4_extends_table = R_NewHashedEnv(R_NilValue);
+	R_S4_extends_table = R_NewHashedEnv(R_NilValue, ScalarInteger(0));
 	R_PreserveObject(R_S4_extends_table);
     }
     /* sanity check for methods package available */

@@ -880,6 +880,7 @@ LibExtern Rboolean UseInternet2;
 # define InitGlobalEnv		Rf_InitGlobalEnv
 # define InitGraphics		Rf_InitGraphics
 # define InitMemory		Rf_InitMemory
+# define InformGCofMemUsage	Rf_InformGCofMemUsage
 # define InitNames		Rf_InitNames
 # define InitOptions		Rf_InitOptions
 # define InitStringHash		Rf_InitStringHash
@@ -1086,6 +1087,7 @@ void R_InitialData(void);
 SEXP R_possible_dispatch(SEXP, SEXP, SEXP, SEXP, Rboolean);
 void InitGraphics(void);
 void InitMemory(void);
+void InformGCofMemUsage(int);
 void InitNames(void);
 void InitOptions(void);
 void InitStringTable(void);
@@ -1142,7 +1144,7 @@ SEXP R_data_class(SEXP , Rboolean);
 SEXP R_data_class2(SEXP);
 char *R_LibraryFileName(const char *, char *, size_t);
 SEXP R_LoadFromFile(FILE*, int);
-SEXP R_NewHashedEnv(SEXP);
+SEXP R_NewHashedEnv(SEXP, SEXP);
 extern int R_Newhashpjw(const char *);
 FILE* R_OpenLibraryFile(const char *);
 SEXP R_Primitive(const char *);

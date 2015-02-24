@@ -1398,6 +1398,7 @@ void R_EnvUnHashFrame(SEXP);
 
 /* Performant string hashing function */
 size_t StringHash(const char *s, size_t len);
+int R_Newhashpjw(const char *);
 
 typedef struct {
     SEXP symsxp;
@@ -1409,6 +1410,7 @@ typedef struct {
 
 typedef struct {
     size_t size; /* size of entire slot */
+    size_t dsize; /* size of portion deleted */
 } R_str_slot_t; /* element data follows slot in memory */
 
 typedef struct {
@@ -1421,24 +1423,10 @@ typedef struct R_sym_table {
     struct R_sym_table *next;
 } R_sym_table_t;
 
-SEXP R_STInsChrStr(SEXP charsxp, const char *name, R_len_t len);
-void R_STDelCHAR(const char *);
+SEXP R_STInsChrStr(SEXP, const char *, R_len_t);
+size_t R_STCompactSlot(R_str_slot_t *, int);
 R_str_table_t *R_StringTable;       /* Global table of CHARSXPs and SYMSXPs */
 R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */
-
-#define TRAVERSE_STRINGTABLE_CHARSXP(__charsxp__) \
-    for(int __i__=0; __i__ < R_StringTable->len; __i__++) { \
-	R_str_slot_t *__slot__ = R_StringTable->slot[__i__]; \
-	if (!__slot__) continue; \
-	R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1); \
-	R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size); \
-	size_t __esize__; \
-	while (__e__ != __end__) { \
-	    __esize__ = __e__->size; \
-	    if (__e__->charsxp && !__e__->symsxp) { \
-	    __charsxp__ = __e__->charsxp;
-
-#define END_TRAVERSE_STRINGTABLE }; __e__ = (R_str_elem_t *)((char *)__e__ + __esize__); } }
 
 #define TRAVERSE_SYMBOLTABLE(s) \
     for(R_sym_table_t *__sym__=R_SymbolTable; __sym__!=NULL; __sym__=__sym__->next ) { \

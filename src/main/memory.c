@@ -1511,6 +1511,31 @@ SEXP attribute_hidden do_regFinaliz(SEXP call, SEXP op, SEXP args, SEXP rho)
     return R_NilValue;
 }
 
+/* String Table Traversal */
+
+#define TRAVERSE_STRINGTABLE_CHARSXP(__charsxp__) \
+    for(int __i__=0; __i__ < R_StringTable->len; __i__++) { \
+	R_str_slot_t *__slot__ = R_StringTable->slot[__i__]; \
+	if (!__slot__) continue; \
+	R_str_elem_t *__e__=(R_str_elem_t *)(__slot__+1); \
+	R_str_elem_t *__end__=(R_str_elem_t *)((char *)__slot__ + __slot__->size); \
+	size_t __esize__, __slotdsize__=0; \
+	while (__e__ != __end__) { \
+	    __esize__ = __e__->size; \
+	    if (__e__->charsxp && !__e__->symsxp) { \
+		__charsxp__ = __e__->charsxp;
+
+#define STRINGTABLE_DELCHARSXP(s) \
+		__e__->charsxp = NULL; __slotdsize__ += __e__->size;
+
+#define END_TRAVERSE_STRINGTABLE \
+	    } \
+	    __e__ = (R_str_elem_t *)((char *)__e__ + __esize__); \
+	} \
+	__slot__->dsize += __slotdsize__; \
+	if (__slot__->dsize)\
+	    R_LargeVallocSize -= R_STCompactSlot(__slot__,__i__); \
+    }
 
 /* The Generational Collector. */
 
@@ -1716,7 +1741,7 @@ static void RunGenCollect(R_size_t size_needed)
 	SEXP charsxp;
 	TRAVERSE_STRINGTABLE_CHARSXP(charsxp){
 	    if (!NODE_IS_MARKED(charsxp)){
-		R_STDelCHAR(CHAR(charsxp));
+		STRINGTABLE_DELCHARSXP(charsxp);
 	    } else {
 		FORWARD_NODE(charsxp);
 	    }
@@ -2107,6 +2132,10 @@ void attribute_hidden InitMemory()
     R_LogicalNAValue = allocVector(LGLSXP, 1);
     LOGICAL(R_LogicalNAValue)[0] = NA_LOGICAL;
     MARK_NOT_MUTABLE(R_LogicalNAValue);
+}
+
+void InformGCofMemUsage(int size){
+    R_LargeVallocSize += size;
 }
 
 /* Since memory allocated from the heap is non-moving, R_alloc just

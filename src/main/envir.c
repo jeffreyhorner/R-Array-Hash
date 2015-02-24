@@ -247,30 +247,40 @@ typedef struct array_hash_t {
     dynam_array *slot[];
 } array_hash;
 
-#define ARRAY_HASH_SIZE 1024
-static array_hash *NewArrayHash(){
-    array_hash *a = calloc(1, sizeof(*a) + sizeof(dynam_array *) * ARRAY_HASH_SIZE);
+#define ARRAY_HASH_SIZE 29
+static array_hash *NewArrayHash(int size){
+    if (size <= 0) size = ARRAY_HASH_SIZE;
+    array_hash *a = calloc(1, sizeof(*a) + sizeof(dynam_array *) * size);
     if (!a){
 	printf("Cannot allocate memory for hash table");
 	EMBED_BREAKPOINT;
     }
 
-    a->size = ARRAY_HASH_SIZE;
+    InformGCofMemUsage(BYTE2VEC(sizeof(*a) + sizeof(dynam_array *) * size));
+
+    a->size = size;
     return a;
 }
 
 static void DestroyArrayHash(SEXP x){
+    int size=0;
     array_hash *a;
     EXTRACT_HASH_TABLE(a,x);
     if (a){
 	int i;
 	for (i = 0; i < a->size; i++){
-	    if (a->slot[i] != NULL) free(a->slot[i]);
+	    size += sizeof(dynam_array *);
+	    if (a->slot[i] != NULL) {
+		size += sizeof(dynam_array) + a->slot[i]->nelem * sizeof(darray_elem);
+		free(a->slot[i]);
+	    }
 	}
 	free(a);
+	size += sizeof(*a);
     }
     R_ClearExternalPtr(x);
     UNSET_ENVHASHTABLE_BIT(x);
+    InformGCofMemUsage(-BYTE2VEC(size));
 }
 
 static inline void InitElem(darray_elem *e, SEXP table, SEXP symbol, SEXP value){
@@ -289,6 +299,7 @@ static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
 	EMBED_BREAKPOINT;
     }
     d->nelem = 1;
+    InformGCofMemUsage(BYTE2VEC(sizeof(dynam_array) + sizeof(darray_elem)));
     InitElem(&d->elem[0], table, symbol, value);
     return d; 
 }
@@ -297,6 +308,7 @@ static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
 static dynam_array *AppendToDynamArray(dynam_array *d, SEXP table, SEXP symbol, SEXP value){
     dynam_array *nd = (dynam_array *)realloc(d,DYNAM_ARRAY_SIZE(d) + sizeof(darray_elem));
 
+    InformGCofMemUsage(BYTE2VEC(sizeof(darray_elem)));
     if (!nd){
 	printf("Cannot allocate memory for hash table");
 	EMBED_BREAKPOINT;
@@ -617,10 +629,10 @@ static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
 
 */
 
-static SEXP R_NewEnvHashTable()
+static SEXP R_NewEnvHashTable(int size)
 {
     SEXP hashtab; 
-    PROTECT(hashtab = R_MakeExternalPtr(NewArrayHash(), R_NilValue, R_NilValue));
+    PROTECT(hashtab = R_MakeExternalPtr(NewArrayHash(size), R_NilValue, R_NilValue));
     R_RegisterCFinalizer(hashtab,DestroyArrayHash);
     SET_ENVHASHTABLE_BIT(hashtab);
     UNPROTECT(1);
@@ -636,14 +648,15 @@ static SEXP R_NewEnvHashTable()
   The only non-static hash table function.
 */
 
-SEXP R_NewHashedEnv(SEXP enclos)
+SEXP R_NewHashedEnv(SEXP enclos, SEXP size)
 {
     SEXP s;
 
     PROTECT(enclos);
+    PROTECT(size);
     PROTECT(s = NewEnvironment(R_NilValue, R_NilValue, enclos));
-    SET_HASHTAB(s, R_NewEnvHashTable());
-    UNPROTECT(2);
+    SET_HASHTAB(s, R_NewEnvHashTable(asInteger(size)));
+    UNPROTECT(3);
     return s;
 }
 
@@ -1286,14 +1299,14 @@ void attribute_hidden InitGlobalEnv()
 {
     R_NamespaceSymbol = install(".__NAMESPACE__.");
 
-    R_GlobalEnv = R_NewHashedEnv(R_BaseEnv);
+    R_GlobalEnv = R_NewHashedEnv(R_BaseEnv, ScalarInteger(0));
     R_MethodsNamespace = R_GlobalEnv; // so it is initialized.
 #ifdef NEW_CODE /* Not used */
-    HASHTAB(R_GlobalEnv) = R_NewEnvHashTable();
+    HASHTAB(R_GlobalEnv) = R_NewEnvHashTable(0);
 #endif
 #ifdef USE_GLOBAL_CACHE
     MARK_AS_GLOBAL_FRAME(R_GlobalEnv);
-    R_GlobalCache = R_NewEnvHashTable();
+    R_GlobalCache = R_NewEnvHashTable(0);
     R_GlobalCachePreserve = CONS(R_GlobalCache, R_NilValue);
     R_PreserveObject(R_GlobalCachePreserve);
 #endif
@@ -1302,7 +1315,7 @@ void attribute_hidden InitGlobalEnv()
     SET_SYMVALUE(install(".BaseNamespaceEnv"), R_BaseNamespace);
     R_BaseNamespaceName = ScalarString(mkChar("base"));
     R_PreserveObject(R_BaseNamespaceName);
-    R_NamespaceRegistry = R_NewHashedEnv(R_NilValue);
+    R_NamespaceRegistry = R_NewHashedEnv(R_NilValue, ScalarInteger(0));
     R_PreserveObject(R_NamespaceRegistry);
     defineVar(R_BaseSymbol, R_BaseNamespace, R_NamespaceRegistry);
     /**** needed to properly initialize the base namespace */
@@ -2920,7 +2933,7 @@ SEXP attribute_hidden do_attach(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 
 	/* Connect FRAME(s) into HASHTAB(s) */
-        SET_HASHTAB(s, R_NewEnvHashTable());
+        SET_HASHTAB(s, R_NewEnvHashTable(0));
 	s = R_EnvHashFrame(s);
 
     } else { /* is a user object */
@@ -3987,7 +4000,7 @@ void R_RestoreHashCount(SEXP rho)
 	table = HASHTAB(rho);
 	size = HASHSIZE(table);
 	PROTECT(table);
-	HASHTAB(rho) = R_NewEnvHashTable();
+	HASHTAB(rho) = R_NewEnvHashTable(0);
 	for (i = 0; i < size; i++){
 	    frame = VECTOR_ELT(table, i);
 	    while (frame != R_NilValue) {
@@ -3997,7 +4010,7 @@ void R_RestoreHashCount(SEXP rho)
 	}
 	UNPROTECT(1);
     } else {
-	HASHTAB(rho) = R_NewEnvHashTable();
+	HASHTAB(rho) = R_NewEnvHashTable(0);
 	rho = R_EnvHashFrame(rho);
     }
 }

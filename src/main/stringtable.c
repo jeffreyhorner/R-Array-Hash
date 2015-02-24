@@ -57,13 +57,16 @@ static R_str_elem_t *ST_NA_STRING;
 
 void attribute_hidden InitStringTable()
 {
+    int size=0;
     R_StringTable = 
 	(R_str_table_t *)calloc(1,sizeof(*R_StringTable));
+    size += sizeof(*R_StringTable);
     if (!R_StringTable)
     	R_Suicide("couldn't allocate memory for string table");
     R_StringTable->slot = (R_str_slot_t **)calloc(STSIZE,sizeof(R_str_slot_t *));
     if (!R_StringTable->slot)
     	R_Suicide("couldn't allocate memory for string table");
+    size += STSIZE * sizeof(R_str_slot_t *);
     R_StringTable->len = STSIZE;
     
     R_SymbolTable = NULL;
@@ -76,16 +79,20 @@ void attribute_hidden InitStringTable()
     ST_NA_STRING->symsxp = NULL;
     ST_NA_STRING->charsxp = NA_STRING;
     ST_NA_STRING->len = 2;
+    ST_NA_STRING->size = sizeof(R_str_elem_t) + 3;
+    size += ST_NA_STRING->size;
     memcpy(ELEMENT_CHAR(ST_NA_STRING),"NA",2);
     ELEMENT_CHAR(ST_NA_STRING)[2] = 0;
     SET_CHAR_PTR(NA_STRING, ELEMENT_CHAR(ST_NA_STRING));
     SETLENGTH(NA_STRING, 2);
     SET_CACHED(NA_STRING);
     R_print.na_string = NA_STRING;
+
+    InformGCofMemUsage(BYTE2VEC(size));
 }
 
-#include <stdlib.h>
-static size_t st_multiple(size_t requested_size, size_t multiple){
+static size_t st_multiple(size_t requested_size){
+    size_t multiple = 8;
     return (
 	( 
 	    requested_size/multiple + 
@@ -119,16 +126,17 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
 
     slot = R_StringTable->slot[slotn];
     /* TODO: determine best word alignment: 8, 16, ? */
-    esize = st_multiple(sizeof(R_str_elem_t) + BYTE2VEC(len + 1)*sizeof(VECREC), 8);
+    esize = st_multiple(sizeof(R_str_elem_t) + BYTE2VEC(len + 1)*sizeof(VECREC));
 
     if (slot){
 	R_str_elem_t *elem, *last_elem;
 	size_t oldsize = slot->size;
-	size = st_multiple(oldsize + esize, 8);
+	size = st_multiple(oldsize + esize);
 	slot = (R_str_slot_t *)st_realloc(slot,oldsize, size);
 	if (!slot)
 	    error("couldn't allocate memory for string table");
 	slot->size = size;
+	slot->dsize = 0;
 	last_elem = (R_str_elem_t *)((char *)slot + oldsize);
 
 	/* Fix up charsxp pointers to str for all but last element*/
@@ -138,16 +146,16 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
 		SET_CHAR_PTR(elem->charsxp,ELEMENT_CHAR(elem));
 	    }
 	    elem = NEXT_ELEMENT(elem);
-	    
 	}
 	e = last_elem;
     } else {
-	size = st_multiple(sizeof(R_str_slot_t) + esize, 8);
+	size = st_multiple(sizeof(R_str_slot_t) + esize);
 	esize = size - sizeof(R_str_slot_t);
 	slot = (R_str_slot_t *)st_malloc(size);
 	if (!slot)
 	    error("couldn't allocate memory for string table");
 	slot->size = size;
+	slot->dsize = 0;
 	e = FIRST_ELEMENT(slot);
     }
     R_StringTable->slot[slotn] = slot;
@@ -168,21 +176,42 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
 /* Insert CHARSXP using String. Called from allocCharsxp in memory.c */
 SEXP R_STInsChrStr(SEXP charSXP, const char *name, R_len_t len)
 {
-    SlotInsElem(ST_SLOT(name,len),charSXP, name, len);
+    R_str_elem_t *e=SlotInsElem(ST_SLOT(name,len),charSXP, name, len);
+    InformGCofMemUsage(BYTE2VEC(e->size));
     return charSXP;
 }
 
-void R_STDelCHAR(const char *str){
-    R_str_elem_t *e;
-    
-    e = (R_str_elem_t *)str - 1;
-    if (!e->charsxp){
-	error("CHARSXP(%s) IS NULL!\n", str);
+size_t R_STCompactSlot(R_str_slot_t *slot, int i)
+{
+    size_t deleted=0;
+    if (slot->dsize == slot->size){
+	deleted = slot->size;
+	free(slot);
+	R_StringTable->slot[i] = NULL;
+	return deleted;
     }
-    if (e->symsxp){
-	error("Cannot Delete CHARSXP(%s) because of SYMSXP!\n",str);
+    if (slot->dsize <=0) return deleted;
+
+    /* Would be nice to defer this until really necessary */
+    deleted = slot->dsize;
+    size_t size = st_multiple(slot->size - slot->dsize);
+    R_str_slot_t *newslot = (R_str_slot_t *)st_malloc(size);
+    newslot->size = size;
+    newslot->dsize = 0;
+    R_str_elem_t *newelem = FIRST_ELEMENT(newslot);
+    R_str_elem_t *elem = FIRST_ELEMENT(slot);
+    R_str_elem_t *last_elem = (R_str_elem_t *)((char *)slot + slot->size);
+    while (elem != last_elem){
+	if (elem->charsxp){
+	    memcpy(newelem,elem,elem->size);
+	    SET_CHAR_PTR(newelem->charsxp,ELEMENT_CHAR(newelem));
+	    newelem = NEXT_ELEMENT(newelem);
+	}
+	elem = NEXT_ELEMENT(elem);
     }
-    e->charsxp = NULL;
+    free(slot);
+    R_StringTable->slot[i] = newslot;
+    return deleted;
 }
 
 const char *R_STCHAR(SEXP charsxp){
@@ -461,7 +490,6 @@ SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
     }
 
     slotn = ST_SLOT(name,len);
-    /*cval = traverse_st_slot_stats(slotn, name, len, need_enc);*/
     cval = traverse_st_slot(slotn, name, len, need_enc);
     if (cval != R_NilValue) return cval;
     
