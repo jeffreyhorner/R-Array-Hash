@@ -43,7 +43,6 @@ For speed (copied from ubuntu's R package):
     CXXFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
     FC="gfortran" \
     FCFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4" \
-    LIBS="-L/usr/local/lib -lfarmhash" \
     LIBnn=lib \
     ./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
     --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
