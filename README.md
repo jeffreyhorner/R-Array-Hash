@@ -35,7 +35,7 @@ For debugging and development:
 For speed (copied from ubuntu's R package):
   ```
     CC="gcc -std=gnu99" \
-    CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g -I/usr/local/" \
+    CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
     LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-z,relro" \
     F77=gfortran  \
     FFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4"  \

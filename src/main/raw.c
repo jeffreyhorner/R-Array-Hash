@@ -265,8 +265,8 @@ SEXP attribute_hidden do_utf8ToInt(SEXP call, SEXP op, SEXP args, SEXP env)
 {
     SEXP ans, x = CAR(args);
     int tmp, used = 0; /* -Wall */
-    const char *s = CHAR(STRING_ELT(x, 0));
     R_xlen_t i, j, nc;
+    const void *vmax = vmaxget();
 
     checkArity(op, args);
     if (!isString(x) || LENGTH(x) == 0)
@@ -276,6 +276,7 @@ SEXP attribute_hidden do_utf8ToInt(SEXP call, SEXP op, SEXP args, SEXP env)
     if (STRING_ELT(x, 0) == NA_STRING) return ScalarInteger(NA_INTEGER);
     nc = XLENGTH(STRING_ELT(x, 0)); /* ints will be shorter */
     int *ians = (int *) R_alloc(nc, sizeof(int));
+    const char *s = translateChar(STRING_ELT(x, 0));
     for (i = 0, j = 0; i < nc; i++) {
 	used = mbrtoint(&tmp, s);
 	if (used <= 0) break;
@@ -285,6 +286,7 @@ SEXP attribute_hidden do_utf8ToInt(SEXP call, SEXP op, SEXP args, SEXP env)
     if (used < 0) error(_("invalid UTF-8 string"));
     ans = allocVector(INTSXP, j);
     memcpy(INTEGER(ans), ians, sizeof(int) * j);
+    vmaxset(vmax);
     return ans;
 }
 

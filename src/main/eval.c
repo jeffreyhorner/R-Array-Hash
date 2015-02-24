@@ -2819,8 +2819,9 @@ int DispatchGroup(const char* group, SEXP call, SEXP op, SEXP args, SEXP rho,
     if( lsxp != rsxp ) {
 	if ( isFunction(lsxp) && isFunction(rsxp) ) {
 	    /* special-case some methods involving difftime */
-	    const char *lname = CHAR(PRINTNAME(lmeth)),
-		*rname = CHAR(PRINTNAME(rmeth));
+	    const void *vmax = vmaxget();
+	    const char *lname = translateChar(PRINTNAME(lmeth)),
+		*rname = translateChar(PRINTNAME(rmeth));
 	    if( streql(rname, "Ops.difftime") &&
 		(streql(lname, "+.POSIXt") || streql(lname, "-.POSIXt") ||
 		 streql(lname, "+.Date") || streql(lname, "-.Date")) )
@@ -2832,8 +2833,10 @@ int DispatchGroup(const char* group, SEXP call, SEXP op, SEXP args, SEXP rho,
 		warning(_("Incompatible methods (\"%s\", \"%s\") for \"%s\""),
 			lname, rname, generic);
 		UNPROTECT(2);
+		vmaxset(vmax);
 		return 0;
 	    }
+	    vmaxset(vmax);
 	}
 	/* if the right hand side is the one */
 	if( !isFunction(lsxp) ) { /* copy over the righthand stuff */
