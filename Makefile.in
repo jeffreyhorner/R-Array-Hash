@@ -115,10 +115,13 @@ svnonly:
 	      echo -n 'Last Changed Date: ' >>  SVN-REVISION-tmp ;\
 	      git log -1 --pretty=format:"%ad" --date=iso \
 	       | cut -d ' ' -f1 >> SVN-REVISION-tmp ;\
-	  else \
+	  else if [ -d "$(top_builddir)/.svn" ]; then \
 	   (cd $(srcdir); LC_ALL=C TZ=GMT svn info || $(ECHO) "Revision: -99") 2> /dev/null \
-        | sed -n -e '/^Revision/p' -e '/^Last Changed Date/'p \
-        | cut -d' ' -f1,2,3,4 > SVN-REVISION-tmp ; \
+	    | sed -n -e '/^Revision/p' -e '/^Last Changed Date/'p \
+	    | cut -d' ' -f1,2,3,4 > SVN-REVISION-tmp ; \
+	  else \
+		echo -ne "Revision: 1\nLast Change Date: " > SVN-REVISION-tmp; \
+		date +"%Y-%m-%d" >> SVN-REVISION-tmp; \
 	  fi; \
 	  if test "`cat SVN-REVISION-tmp`" = "Revision: -99"; then \
 	    $(ECHO) "ERROR: not an svn checkout"; \
