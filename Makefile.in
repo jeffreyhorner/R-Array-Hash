@@ -122,7 +122,7 @@ svnonly:
 	  else \
 		echo -ne "Revision: 1\nLast Change Date: " > SVN-REVISION-tmp; \
 		date +"%Y-%m-%d" >> SVN-REVISION-tmp; \
-	  fi; \
+	  fi; fi; \
 	  if test "`cat SVN-REVISION-tmp`" = "Revision: -99"; then \
 	    $(ECHO) "ERROR: not an svn checkout"; \
 	    exit 1; \
