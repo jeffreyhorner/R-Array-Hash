@@ -252,7 +252,7 @@ void do_show_cache()
 	TRAVERSE_ST_SLOT(i)
 	    sum++;
 	END_TRAVERSE_ST_SLOT
-	printf("%lu, ", sum);
+	printf("%lu, ", (long unsigned int)sum);
     }
     printf("\n");
 }
