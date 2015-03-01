@@ -1534,7 +1534,7 @@ SEXP attribute_hidden do_regFinaliz(SEXP call, SEXP op, SEXP args, SEXP rho)
 	} \
 	__slot__->dsize += __slotdsize__; \
 	if (__slot__->dsize)\
-	    R_LargeVallocSize -= R_STCompactSlot(__slot__,__i__); \
+	    R_STCompactSlot(__slot__,__i__); \
     }
 
 /* The Generational Collector. */
@@ -2134,8 +2134,11 @@ void attribute_hidden InitMemory()
     MARK_NOT_MUTABLE(R_LogicalNAValue);
 }
 
-void InformGCofMemUsage(int size){
-    R_LargeVallocSize += size;
+void InformGCofMemUsage(size_t size, Rboolean grow){
+    if (grow)
+	R_LargeVallocSize += BYTE2VEC(size);
+    else
+	R_LargeVallocSize -= BYTE2VEC(size);
 }
 
 /* Since memory allocated from the heap is non-moving, R_alloc just

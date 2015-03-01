@@ -1087,7 +1087,7 @@ void R_InitialData(void);
 SEXP R_possible_dispatch(SEXP, SEXP, SEXP, SEXP, Rboolean);
 void InitGraphics(void);
 void InitMemory(void);
-void InformGCofMemUsage(int);
+void InformGCofMemUsage(size_t, Rboolean);
 void InitNames(void);
 void InitOptions(void);
 void InitStringTable(void);

@@ -67,16 +67,16 @@ static R_str_elem_t *ST_NA_STRING;
 
 void attribute_hidden InitStringTable()
 {
-    int size=0;
+    int memuse=0;
     R_StringTable = 
 	(R_str_table_t *)calloc(1,sizeof(*R_StringTable));
-    size += sizeof(*R_StringTable);
+    memuse += sizeof(*R_StringTable);
     if (!R_StringTable)
     	R_Suicide("couldn't allocate memory for string table");
     R_StringTable->slot = (R_str_slot_t **)calloc(STSIZE,sizeof(R_str_slot_t *));
     if (!R_StringTable->slot)
     	R_Suicide("couldn't allocate memory for string table");
-    size += STSIZE * sizeof(R_str_slot_t *);
+    memuse += STSIZE * sizeof(R_str_slot_t *);
     R_StringTable->len = STSIZE;
     
     R_SymbolTable = NULL;
@@ -90,7 +90,7 @@ void attribute_hidden InitStringTable()
     ST_NA_STRING->charsxp = NA_STRING;
     ST_NA_STRING->len = 2;
     ST_NA_STRING->size = sizeof(R_str_elem_t) + 3;
-    size += ST_NA_STRING->size;
+    memuse += ST_NA_STRING->size;
     memcpy(ELEMENT_CHAR(ST_NA_STRING),"NA",2);
     ELEMENT_CHAR(ST_NA_STRING)[2] = 0;
     SET_CHAR_PTR(NA_STRING, ELEMENT_CHAR(ST_NA_STRING));
@@ -98,7 +98,7 @@ void attribute_hidden InitStringTable()
     SET_CACHED(NA_STRING);
     R_print.na_string = NA_STRING;
 
-    InformGCofMemUsage(BYTE2VEC(size));
+    InformGCofMemUsage(memuse,TRUE);
 }
 
 static size_t st_multiple(size_t requested_size){
@@ -112,7 +112,10 @@ static size_t st_multiple(size_t requested_size){
 }
 static void *st_malloc(size_t size){
     void *memptr;
-    if (posix_memalign(&memptr, 8, size)==0) return memptr;
+    if (posix_memalign(&memptr, 8, size)==0){
+	InformGCofMemUsage(size,TRUE);
+	return memptr;
+    }
     return NULL;
 }
 
@@ -122,6 +125,8 @@ static void *st_realloc(void *oldmem, size_t oldsize, size_t newsize){
     if (posix_memalign(&newmem, 8, newsize)!=0) return NULL;
 
     memcpy(newmem, oldmem, oldsize);
+
+    InformGCofMemUsage(newsize-oldsize,TRUE);
 
     free(oldmem);
 
@@ -187,23 +192,21 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, SEXP charSXP, const char *name, 
 SEXP R_STInsChrStr(SEXP charSXP, const char *name, R_len_t len)
 {
     R_str_elem_t *e=SlotInsElem(ST_SLOT(name,len),charSXP, name, len);
-    InformGCofMemUsage(BYTE2VEC(e->size));
     return charSXP;
 }
 
-size_t R_STCompactSlot(R_str_slot_t *slot, int i)
+void R_STCompactSlot(R_str_slot_t *slot, int i)
 {
-    size_t deleted=0;
+    InformGCofMemUsage(slot->dsize,FALSE);
+
     if (slot->dsize == slot->size){
-	deleted = slot->size;
 	free(slot);
 	R_StringTable->slot[i] = NULL;
-	return deleted;
+	return;
     }
-    if (slot->dsize <=0) return deleted;
+    if (slot->dsize <=0) return;
 
     /* Would be nice to defer this until really necessary */
-    deleted = slot->dsize;
     size_t size = st_multiple(slot->size - slot->dsize);
     R_str_slot_t *newslot = (R_str_slot_t *)st_malloc(size);
     newslot->size = size;
@@ -221,7 +224,6 @@ size_t R_STCompactSlot(R_str_slot_t *slot, int i)
     }
     free(slot);
     R_StringTable->slot[i] = newslot;
-    return deleted;
 }
 
 const char *R_STCHAR(SEXP charsxp){

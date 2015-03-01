@@ -247,7 +247,7 @@ typedef struct array_hash_t {
     dynam_array *slot[];
 } array_hash;
 
-#define ARRAY_HASH_SIZE 29
+#define ARRAY_HASH_SIZE 32
 static array_hash *NewArrayHash(int size){
     if (size <= 0) size = ARRAY_HASH_SIZE;
     array_hash *a = calloc(1, sizeof(*a) + sizeof(dynam_array *) * size);
@@ -256,7 +256,7 @@ static array_hash *NewArrayHash(int size){
 	EMBED_BREAKPOINT;
     }
 
-    InformGCofMemUsage(BYTE2VEC(sizeof(*a) + sizeof(dynam_array *) * size));
+    InformGCofMemUsage(sizeof(*a) + sizeof(dynam_array *) * size,TRUE);
 
     a->size = size;
     return a;
@@ -280,7 +280,7 @@ static void DestroyArrayHash(SEXP x){
     }
     R_ClearExternalPtr(x);
     UNSET_ENVHASHTABLE_BIT(x);
-    InformGCofMemUsage(-BYTE2VEC(size));
+    InformGCofMemUsage(size,FALSE);
 }
 
 static inline void InitElem(darray_elem *e, SEXP table, SEXP symbol, SEXP value){
@@ -299,7 +299,7 @@ static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
 	EMBED_BREAKPOINT;
     }
     d->nelem = 1;
-    InformGCofMemUsage(BYTE2VEC(sizeof(dynam_array) + sizeof(darray_elem)));
+    InformGCofMemUsage(sizeof(dynam_array) + sizeof(darray_elem),TRUE);
     InitElem(&d->elem[0], table, symbol, value);
     return d; 
 }
@@ -308,7 +308,7 @@ static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
 static dynam_array *AppendToDynamArray(dynam_array *d, SEXP table, SEXP symbol, SEXP value){
     dynam_array *nd = (dynam_array *)realloc(d,DYNAM_ARRAY_SIZE(d) + sizeof(darray_elem));
 
-    InformGCofMemUsage(BYTE2VEC(sizeof(darray_elem)));
+    InformGCofMemUsage(sizeof(darray_elem),TRUE);
     if (!nd){
 	printf("Cannot allocate memory for hash table");
 	EMBED_BREAKPOINT;

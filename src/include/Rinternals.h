@@ -1420,7 +1420,7 @@ typedef struct R_sym_table {
 } R_sym_table_t;
 
 SEXP R_STInsChrStr(SEXP, const char *, R_len_t);
-size_t R_STCompactSlot(R_str_slot_t *, int);
+void R_STCompactSlot(R_str_slot_t *, int);
 R_str_table_t *R_StringTable;       /* Global table of CHARSXPs and SYMSXPs */
 R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */
 
