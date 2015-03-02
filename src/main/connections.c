@@ -5071,8 +5071,10 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 //	error("ftps:// URLs are not supported by the default method:\n   consider url(method = \"libcurl\")");
 #else
-	vmaxset(vmax);
-	error("ftps:// URLs are not supported");
+	{
+	    vmaxset(vmax);
+	    error("ftps:// URLs are not supported");
+	}
 #endif
 #ifdef Win32
 	if (!urlmeth && strncmp(url, "https://", 8) == 0) {
@@ -5092,8 +5094,10 @@ SEXP attribute_hidden do_url(SEXP call, SEXP op, SEXP args, SEXP env)
 	}
 //	    error("https:// URLs are not supported by the default method:\n  consider url(method = \"libcurl\")");
 # else
-	vmaxset(vmax);
-	error("https:// URLs are not supported");
+	{
+	    vmaxset(vmax);
+	    error("https:// URLs are not supported");
+	}
 # endif
 #endif
     }
