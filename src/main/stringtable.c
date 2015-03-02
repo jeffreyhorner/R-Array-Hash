@@ -236,7 +236,7 @@ const char *R_STCHAR(SEXP charsxp){
     e = (R_str_elem_t *)str - 1;
     if (e->charsxp != charsxp){
 	const char *str2 = *(char **)DATAPTR(e->charsxp);
-	error("CHARSXP MISMATCH! '%s' '%s'", str, str2);
+	error("CHARSXP MISMATCH! '%p:%s' '%p:%s'", e->charsxp, str, charsxp, str2);
     }
     
     return str;

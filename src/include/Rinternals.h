@@ -375,9 +375,13 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
 /* Old def */
 /* #define CHAR(x)	    ((const char *) DATAPTR(x)) */
 
-/* const char *R_STCHAR(SEXP charsxp); */
-/* #define CHAR(x)         R_STCHAR(x) */
+/* For debugging */
+/* const char *R_STCHAR(SEXP charsxp);
+#define CHAR(x)         R_STCHAR(x) */
+
+/* Otherwise */
 #define CHAR(x)		((const char *) *(char **)DATAPTR(x))
+
 #define LOGICAL(x)	((int *) DATAPTR(x))
 #define INTEGER(x)	((int *) DATAPTR(x))
 #define RAW(x)		((Rbyte *) DATAPTR(x))

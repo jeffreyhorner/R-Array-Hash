@@ -842,7 +842,7 @@ SEXP attribute_hidden do_grep(SEXP call, SEXP op, SEXP args, SEXP env)
 	use_WC = use_UTF8; use_UTF8 = FALSE; 
     }
     if (useBytes)
-	spat = CHAR(STRING_ELT(pat, 0));
+	spat = translateChar(STRING_ELT(pat, 0));
     else if (use_WC) ;
     else if (use_UTF8) {
 	spat = translateCharUTF8(STRING_ELT(pat, 0));
@@ -891,7 +891,7 @@ SEXP attribute_hidden do_grep(SEXP call, SEXP op, SEXP args, SEXP env)
 	if (STRING_ELT(text, i) != NA_STRING) {
 	    const char *s = NULL;
 	    if (useBytes)
-		s = CHAR(STRING_ELT(text, i));
+		s = translateChar(STRING_ELT(text, i));
 	    else if (use_WC) ;
 	    else if (use_UTF8) {
 		s = translateCharUTF8(STRING_ELT(text, i));
@@ -1639,7 +1639,7 @@ SEXP attribute_hidden do_gsub(SEXP call, SEXP op, SEXP args, SEXP env)
 	    replen = strlen(srep);
 	} else {
 	    rc  = tre_regwcomp(&reg, wtransChar(STRING_ELT(pat, 0)), cflags);
-	    if (rc) reg_report(rc, &reg, CHAR(STRING_ELT(pat, 0)));
+	    if (rc) reg_report(rc, &reg, translateChar(STRING_ELT(pat, 0)));
 	    wrep = wtransChar(STRING_ELT(rep, 0));
 	    replen = wcslen(wrep);
 	}
@@ -1951,7 +1951,7 @@ gregexpr_Regexc(const regex_t *reg, SEXP sstr, int useBytes, int use_WC)
     PROTECT(matchlenbuf = allocVector(INTSXP, bufsize));
 
     if (useBytes) {
-	string = CHAR(sstr);
+	string = translateChar(sstr);
 	len = strlen(string);
 	use_WC = FALSE; /* to be sure */
     } else if (!use_WC) {
@@ -2397,7 +2397,7 @@ SEXP attribute_hidden do_regexpr(SEXP call, SEXP op, SEXP args, SEXP env)
     }
 
     if (useBytes)
-	spat = CHAR(STRING_ELT(pat, 0));
+	spat = translateChar(STRING_ELT(pat, 0));
     else if (use_WC) ;
     else if (use_UTF8) {
 	spat = translateCharUTF8(STRING_ELT(pat, 0));
@@ -2493,7 +2493,7 @@ SEXP attribute_hidden do_regexpr(SEXP call, SEXP op, SEXP args, SEXP env)
 		INTEGER(matchlen)[i] = INTEGER(ans)[i] = NA_INTEGER;
 	    } else {
 		if (useBytes)
-		    s = CHAR(STRING_ELT(text, i));
+		    s = translateChar(STRING_ELT(text, i));
 		else if (use_WC) ;
 		else if (use_UTF8) {
 		    s = translateCharUTF8(STRING_ELT(text, i));
@@ -2569,7 +2569,7 @@ SEXP attribute_hidden do_regexpr(SEXP call, SEXP op, SEXP args, SEXP env)
 	    } else {
 		if (fixed_opt || perl_opt) {
 		    if (useBytes)
-			s = CHAR(STRING_ELT(text, i));
+			s = translateChar(STRING_ELT(text, i));
 		    else if (use_UTF8) {
 			s = translateCharUTF8(STRING_ELT(text, i));
 		    } else
@@ -2684,7 +2684,7 @@ SEXP attribute_hidden do_regexec(SEXP call, SEXP op, SEXP args, SEXP env)
     }
     
     if(useBytes)
-	rc = tre_regcompb(&reg, CHAR(STRING_ELT(pat, 0)), cflags);
+	rc = tre_regcompb(&reg, translateChar(STRING_ELT(pat, 0)), cflags);
     else if (useWC)
 	rc = tre_regwcomp(&reg, wtransChar(STRING_ELT(pat, 0)), cflags);
     else {
@@ -2717,7 +2717,7 @@ SEXP attribute_hidden do_regexec(SEXP call, SEXP op, SEXP args, SEXP env)
 	} else {
 	    vmax = vmaxget();
 	    if(useBytes)
-		rc = tre_regexecb(&reg, CHAR(STRING_ELT(vec, i)),
+		rc = tre_regexecb(&reg, translateChar(STRING_ELT(vec, i)),
 				  nmatch, pmatch, 0);
 	    else if(useWC) {
 		rc = tre_regwexec(&reg, wtransChar(STRING_ELT(vec, i)),

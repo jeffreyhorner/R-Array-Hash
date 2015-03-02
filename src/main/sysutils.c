@@ -913,17 +913,16 @@ const char *translateChar(SEXP x)
     /* Check for NA_STRING */
     if (x == NA_STRING) return ans;
 
+    R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
+
     /* Always R_alloc */
     if (t == NT_NONE){
-	size_t len = length(x);
-	char *p = R_alloc(len+1, 1);
-	memcpy(p, CHAR(x), len);
-	p[len] = 0;
-	return p;
+	size_t len = length(x) + 1;
+	R_AllocStringBuffer(len,&cbuff);
+	memcpy(cbuff.data,ans,len);
+    } else {
+	translateToNative(ans, &cbuff, t);
     }
-
-    R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
-    translateToNative(ans, &cbuff, t);
 
     size_t res = strlen(cbuff.data) + 1;
     char *p = R_alloc(res, 1);

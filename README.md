@@ -15,16 +15,14 @@ Configure and build with either of the following:
 1. For debugging and development:
 
   ```
-  CC="ccache gcc"
+  CC="gcc" \
   CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
-  CXX="ccache g++"                                \
-  CXXFLAGS="-ggdb -pipe -Wall -pedantic"          \
-  FC="ccache gfortran"                            \
-  F77="ccache gfortran"                           \
+  CXX="g++"                                \
+  CXXFLAGS="-ggdb -pipe -Wall -pedantic"   \
+  FC="gfortran" F77="gfortran"             \
   LIBS="-lbfd" \
-  ./configure --enable-memory-profiling --without-recommended-packages \
-    --with-valgrind-instrumentation=2 --enable-R-shlib
-  time make -j4
+  ./configure --enable-memory-profiling --with-valgrind-instrumentation=2 
+  time make
   ```
 
 2. For speed (copied from ubuntu's R package):
@@ -43,5 +41,5 @@ Configure and build with either of the following:
     --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
     --enable-memory-profiling \
     --build x86_64-linux-gnu build_alias=x86_64-linux-gnu
-  time make -j4
+  time make
   ```
