@@ -4,7 +4,7 @@ This project replaces R's hash tables for environments and the global
 variable cache with Array Hash Tables for Integer Keys[1]. Also, the string cache and symbol table are implemented with an Array Hash Table for Strings[2]. The intention is to evaluate
 run-time performance.
 
-All changes to the R code base are licenced under the same terms as R using the GPL-2.
+All changes to the R code base are licensed under the same terms as R using the GPL-2.
 
 [1] - Askitis, Nikolas. "Fast and compact hash tables for integer keys." In Proceedings of the Thirty-Second Australasian Conference on Computer Science-Volume 91, pp. 113-122. Australian Computer Society, Inc., 2009.
 
