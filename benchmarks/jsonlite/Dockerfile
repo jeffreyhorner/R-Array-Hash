@@ -2,9 +2,11 @@
 FROM jeffreyhorner/r-array-hash
 
 ## Install requirements
-RUN R -e 'install.packages(c("ggplot2", "microbenchmark", "jsonlite"))' && \
-    RD -e 'install.packages(c("ggplot2", "microbenchmark", "jsonlite"))'
+RUN mkdir -p ~/R312 && \
+    mkdir -p ~/R320 && \
+    R -e '.libPaths("~/R312"); install.packages(c("ggplot2", "microbenchmark", "jsonlite"))' && \
+    RD -e '.libPaths("~/R320"); install.packages(c("ggplot2", "microbenchmark", "jsonlite"))'
 
 ## The actual benchmarks
-RUN R -e 'library(ggplot2); library(microbenchmark); library(jsonlite); print(microbenchmark(json <- toJSON(diamonds), fromJSON(json), times = 20));' && \
-    RD -e 'library(ggplot2); library(microbenchmark); library(jsonlite); print(microbenchmark(json <- toJSON(diamonds), fromJSON(json), times = 20));'
+RUN R -e '.libPaths("~/R312"); library(ggplot2); library(microbenchmark); library(jsonlite); print(microbenchmark(json <- toJSON(diamonds), fromJSON(json), times = 20));' && \
+    RD -e '.libPaths("~/R320"); library(ggplot2); library(microbenchmark); library(jsonlite); print(microbenchmark(json <- toJSON(diamonds), fromJSON(json), times = 20));'
