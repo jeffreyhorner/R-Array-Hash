@@ -10,38 +10,57 @@ All changes to the R code base are licensed under the same terms as R using the 
 
 [2] - Askitis, Nikolas, and Justin Zobel. "Redesigning the string hash table, burst trie, and bst to exploit cache." Journal of Experimental Algorithmics (JEA) 15 (2010): 1-7.
 
-# Configure and Build
+# Trying with Docker
+
+Docker images are available with a builds of R with Array Hashes. The dockerfile is based on the [rocker:r-devel](https://registry.hub.docker.com/u/rocker/r-devel/) image. It contains a copy of the latest stable version of R as well so that we can compare performance.
+
+To start an interactive shell:
+
+```bash
+docker run -t -i jeffreyhorner/r-array-hash sh -c '/bin/bash'
+```
+
+Within the image, use the `R` or `RScript` commands to run stable R. To use R-devel with Array Hashes, use `RD` or `RDScript` commands.
+
+```r
+RScript mybenchmarks.R
+RDScript mybenchmarks.R
+```
+
+
+# Building from source
 
 Configure and build with either of the following:
 
 1. For debugging and development:
 
-  ```
-  CC="gcc" \
-  CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
-  CXX="g++"                                \
-  CXXFLAGS="-ggdb -pipe -Wall -pedantic"   \
-  FC="gfortran" F77="gfortran"             \
-  LIBS="-lbfd" \
-  ./configure --enable-memory-profiling --with-valgrind-instrumentation=2 
-  time make
-  ```
+```
+CC="gcc" \
+CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
+CXX="g++"                                \
+CXXFLAGS="-ggdb -pipe -Wall -pedantic"   \
+FC="gfortran" F77="gfortran"             \
+LIBS="-lbfd" \
+./configure --enable-memory-profiling --with-valgrind-instrumentation=2
+time make
+```
 
 2. For speed (copied from ubuntu's R):
-  ```
-    CC="gcc -std=gnu99" \
-    CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
-    LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-z,relro" \
-    F77=gfortran  \
-    FFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4"  \
-    CXX=g++  \
-    CXXFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
-    FC="gfortran" \
-    FCFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4" \
-    LIBnn=lib \
-    ./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
-    --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
-    --enable-memory-profiling \
-    --build x86_64-linux-gnu build_alias=x86_64-linux-gnu
-  time make
-  ```
+
+```
+CC="gcc -std=gnu99" \
+CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
+LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-z,relro" \
+F77=gfortran  \
+FFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4"  \
+CXX=g++  \
+CXXFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
+FC="gfortran" \
+FCFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4" \
+LIBnn=lib \
+./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
+--with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
+--enable-memory-profiling \
+--build x86_64-linux-gnu build_alias=x86_64-linux-gnu
+time make
+```
