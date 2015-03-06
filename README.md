@@ -5,7 +5,7 @@ variable cache with Array Hash Tables for Integer Keys[1]. Also, the
 string cache and symbol table are implemented with an Array Hash Table
 for Strings[2]. The intention is to evaluate run-time performance.
 
-For preliminary results, see the [BENCHMARK](benchmark/).
+For preliminary results, see the [BENCHMARK](benchmarks/).
 
 All changes to the R code base are licensed under the same terms as R using the GPL-2.
 
