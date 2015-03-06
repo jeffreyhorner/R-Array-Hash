@@ -70,8 +70,8 @@ RUN cd /tmp/R-devel \
 		R_PRINTCMD=/usr/bin/lpr \
 		LIBnn=lib \
 		AWK=/usr/bin/awk \
-		CFLAGS="-pipe -std=gnu99 -Wall -pedantic -O3" \
-		CXXFLAGS="-pipe -Wall -pedantic -O3" \
+		CFLAGS=$(R CMD config CFLAGS) \
+		CXXFLAGS=$(R CMD config CXXFLAGS) \
 	./configure --enable-R-shlib \
                --without-blas \
                --without-lapack \
