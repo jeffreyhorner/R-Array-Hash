@@ -1025,10 +1025,10 @@ static void ReleaseLargeFreeVectors()
 	    SEXP next = NEXT_NODE(s);
 	    if ((void *)DATAPTR(s) != NULL) {
 		R_size_t size;
-		if (TYPEOF(s) == CHARSXP){
+		/*if (TYPEOF(s) == CHARSXP){
 		    printf("Releasing Large CHARSXP!\n");
 		    error("Releasing Large CHARSXP!\n");
-		}
+		} */
 #ifdef PROTECTCHECK
 		if (TYPEOF(s) == FREESXP)
 		    size = XLENGTH(s);
@@ -2761,7 +2761,7 @@ SEXP allocVector3(SEXPTYPE type, R_xlen_t length, R_allocator_t *allocator)
 /* For future hiding of allocVector(CHARSXP) */
 SEXP attribute_hidden allocCharsxp(const char *name, R_len_t len)
 {
-    return R_STInsChrStr(allocVector(intCHARSXP, sizeof(char *)), name, len);
+    return R_STInsChrStr(name, len);
 }
 
 SEXP allocList(int n)

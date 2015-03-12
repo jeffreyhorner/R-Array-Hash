@@ -907,22 +907,43 @@ const char *translateChar(SEXP x)
     if(TYPEOF(x) != CHARSXP)
 	error(_("'%s' must be called on a CHARSXP"), "translateChar");
     nttype_t t = needsTranslation(x);
-    const char *ans = CHAR(x);
-    /* if (t == NT_NONE) return ans;*/
 
     /* Check for NA_STRING */
-    if (x == NA_STRING) return ans;
+    if (x == NA_STRING) return CHAR(x);
 
     R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
 
     /* Always R_alloc */
     if (t == NT_NONE){
-	size_t len = length(x) + 1;
-	R_AllocStringBuffer(len,&cbuff);
-	memcpy(cbuff.data,ans,len);
+	if (IS_STRING_VOLATILE(x)){
+	    size_t len = length(x) + 1;
+	    R_AllocStringBuffer(len,&cbuff);
+	    memcpy(cbuff.data,CHAR(x),len);
+	} else {
+	    return CHAR(x);
+	}
     } else {
-	translateToNative(ans, &cbuff, t);
+	translateToNative(CHAR(x), &cbuff, t);
     }
+
+    size_t res = strlen(cbuff.data) + 1;
+    char *p = R_alloc(res, 1);
+    memcpy(p, cbuff.data, res);
+    R_FreeStringBuffer(&cbuff);
+    return p;
+}
+const char *translateCharNC(SEXP x)
+{
+    if(TYPEOF(x) != CHARSXP)
+	error(_("'%s' must be called on a CHARSXP"), "translateChar");
+    nttype_t t = needsTranslation(x);
+    if (t == NT_NONE) return CHAR(x);
+
+    /* Check for NA_STRING */
+    if (x == NA_STRING) return CHAR(x);
+
+    R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
+    translateToNative(CHAR(x), &cbuff, t);
 
     size_t res = strlen(cbuff.data) + 1;
     char *p = R_alloc(res, 1);
@@ -964,7 +985,6 @@ const char *translateCharUTF8(SEXP x)
     const char *inbuf, *ans = CHAR(x);
     char *outbuf, *p;
     size_t inb, outb, res;
-    R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
 
     if(TYPEOF(x) != CHARSXP)
 	error(_("'%s' must be called on a CHARSXP"), "translateCharUTF8");
@@ -982,6 +1002,7 @@ const char *translateCharUTF8(SEXP x)
 #else
        error(_("unsupported conversion from '%s' to '%s'"), "latin1", "UTF-8");
 #endif
+    R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
     R_AllocStringBuffer(0, &cbuff);
 top_of_loop:
     inbuf = ans; inb = strlen(inbuf);

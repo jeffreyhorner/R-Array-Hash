@@ -225,9 +225,11 @@ get1index(SEXP s, SEXP names, R_xlen_t len, int pok, int pos, SEXP call)
 	vmax = vmaxget();
 	PROTECT(names);
 	ss = translateChar(STRING_ELT(s, pos));
-	for (R_xlen_t i = 0; i < xlength(names); i++)
+	R_xlen_t ln = xlength(names);
+	for (R_xlen_t i = 0; i < ln; i++)
 	    if (STRING_ELT(names, i) != NA_STRING) {
-		if (streql(translateChar(STRING_ELT(names, i)), ss)) {
+		if (streql(translateCharNC(STRING_ELT(names, i)), ss)) {
+
 		    indx = i;
 		    break;
 		}
@@ -235,9 +237,10 @@ get1index(SEXP s, SEXP names, R_xlen_t len, int pok, int pos, SEXP call)
 	/* Try for partial match */
 	if (pok && indx < 0) {
 	    size_t len = strlen(ss);
-	    for(R_xlen_t i = 0; i < xlength(names); i++) {
+	    R_xlen_t ln = xlength(names);
+	    for(R_xlen_t i = 0; i < ln; i++) {
 		if (STRING_ELT(names, i) != NA_STRING) {
-		    cur_name = translateChar(STRING_ELT(names, i));
+		    cur_name = translateCharNC(STRING_ELT(names, i));
 		    if(!strncmp(cur_name, ss, len)) {
 			if(indx == -1) {/* first one */
 			    indx = i;

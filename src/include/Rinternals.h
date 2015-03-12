@@ -376,11 +376,8 @@ typedef union { VECTOR_SEXPREC s; double align; } SEXPREC_ALIGN;
 /* #define CHAR(x)	    ((const char *) DATAPTR(x)) */
 
 /* For debugging */
-/* const char *R_STCHAR(SEXP charsxp);
-#define CHAR(x)         R_STCHAR(x) */
-
-/* Otherwise */
-#define CHAR(x)		((const char *) *(char **)DATAPTR(x))
+const char *R_STCHAR(SEXP charsxp);
+#define CHAR(x)         R_STCHAR(x)
 
 #define LOGICAL(x)	((int *) DATAPTR(x))
 #define INTEGER(x)	((int *) DATAPTR(x))
@@ -850,6 +847,7 @@ SEXPTYPE Rf_str2type(const char *);
 Rboolean Rf_StringBlank(SEXP);
 SEXP Rf_substitute(SEXP,SEXP);
 const char * Rf_translateChar(SEXP);
+const char * Rf_translateCharNC(SEXP);
 const char * Rf_translateChar0(SEXP);
 const char * Rf_translateCharUTF8(SEXP);
 const char * Rf_type2char(SEXPTYPE);
@@ -1253,6 +1251,7 @@ void R_orderVector(int *indx, int n, SEXP arglist, Rboolean nalast, Rboolean dec
 #define substitute		Rf_substitute
 #define topenv		        Rf_topenv
 #define translateChar		Rf_translateChar
+#define translateCharNC		Rf_translateCharNC
 #define translateChar0		Rf_translateChar0
 #define translateCharUTF8      	Rf_translateCharUTF8
 #define type2char		Rf_type2char
@@ -1423,7 +1422,7 @@ typedef struct R_sym_table {
     struct R_sym_table *next;
 } R_sym_table_t;
 
-SEXP R_STInsChrStr(SEXP, const char *, R_len_t);
+SEXP R_STInsChrStr(const char *, R_len_t);
 void R_STCompactSlot(R_str_slot_t *, int);
 R_str_table_t *R_StringTable;       /* Global table of CHARSXPs and SYMSXPs */
 R_sym_table_t *R_SymbolTable;       /* Global list of all SYMSXPs */

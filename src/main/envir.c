@@ -329,7 +329,7 @@ static dynam_array *AppendToDynamArray(dynam_array *d, SEXP table, SEXP symbol, 
 
 */
 
-static void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
+void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
 		      Rboolean frame_locked)
 {
     darray_elem *e;
@@ -1282,7 +1282,7 @@ static SEXP R_HashProfile(SEXP table)
 #define MARK_AS_LOCAL_FRAME(e) \
   SET_ENVFLAGS(e, ENVFLAGS(e) & (~ GLOBAL_FRAME_MASK))
 
-#define INITIAL_CACHE_SIZE 1000
+#define INITIAL_CACHE_SIZE 1024
 
 static SEXP R_GlobalCache, R_GlobalCachePreserve;
 #endif
@@ -1306,7 +1306,7 @@ void attribute_hidden InitGlobalEnv()
 #endif
 #ifdef USE_GLOBAL_CACHE
     MARK_AS_GLOBAL_FRAME(R_GlobalEnv);
-    R_GlobalCache = R_NewEnvHashTable(0);
+    R_GlobalCache = R_NewEnvHashTable(INITIAL_CACHE_SIZE);
     R_GlobalCachePreserve = CONS(R_GlobalCache, R_NilValue);
     R_PreserveObject(R_GlobalCachePreserve);
 #endif
@@ -3707,8 +3707,8 @@ void R_LockEnvironment(SEXP env, Rboolean bindings)
 	if (bindings) {
 	    SEXP s;
 	    TRAVERSE_SYMBOLTABLE(s) {
-		if(SYMVALUE(CAR(s)) != R_UnboundValue)
-		    LOCK_BINDING(CAR(s));
+		if(SYMVALUE(s) != R_UnboundValue)
+		    LOCK_BINDING(s);
 	    } END_TRAVERSE_SYMBOLTABLE;
 	}
 #ifdef NOT_YET

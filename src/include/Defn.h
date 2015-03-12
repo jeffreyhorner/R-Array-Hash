@@ -111,6 +111,10 @@ extern0 SEXP    R_dot_GenericDefEnv;  /* ".GenericDefEnv" */
 #define BYTES_MASK (1<<1)
 #define LATIN1_MASK (1<<2)
 #define UTF8_MASK (1<<3)
+/* CHARSXP volatility: volatile if the string data is in the string table */
+#define STRING_VOLATILE_MASK (1<<7)
+#define IS_STRING_VOLATILE(x) ((x)->sxpinfo.gp & STRING_VOLATILE_MASK)
+#define SET_STRING_VOLATILE(x) (((x)->sxpinfo.gp) |= STRING_VOLATILE_MASK)
 /* (1<<4) is taken by S4_OBJECT_MASK */
 #define CACHED_MASK (1<<5)
 #define ASCII_MASK (1<<6)
@@ -1145,6 +1149,7 @@ SEXP R_data_class2(SEXP);
 char *R_LibraryFileName(const char *, char *, size_t);
 SEXP R_LoadFromFile(FILE*, int);
 SEXP R_NewHashedEnv(SEXP, SEXP);
+void R_EnvHashSet(SEXP, SEXP, SEXP, Rboolean);
 FILE* R_OpenLibraryFile(const char *);
 SEXP R_Primitive(const char *);
 void R_RestoreGlobalEnv(void);
