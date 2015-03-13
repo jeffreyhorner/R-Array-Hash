@@ -182,6 +182,9 @@ Rboolean R_envHasNoSpecialSymbols (SEXP env)
   internal changes of implementation without affecting client code.
 */
 
+#ifndef DEBUG
+#define EXTRACT_HASH_TABLE(t,x) t = (array_hash *)EXTPTR_PTR(x)
+#else
 #define EMBED_BREAKPOINT do {\
     int *x = 0; \
     *x = 1; \
@@ -198,6 +201,7 @@ Rboolean R_envHasNoSpecialSymbols (SEXP env)
     } \
     t = R_ExternalPtrAddr(x); \
 } while(0)
+#endif
 
 /* from code.google.com/p/smhasher/wiki/MurmurHash3 */
 #ifdef HAVE_INT64_T
@@ -244,6 +248,7 @@ typedef struct dynam_array_t {
 
 typedef struct array_hash_t {
     unsigned int size;
+    SEXP tmp_binding;
     dynam_array *slot[];
 } array_hash;
 
@@ -253,12 +258,15 @@ static array_hash *NewArrayHash(int size){
     array_hash *a = calloc(1, sizeof(*a) + sizeof(dynam_array *) * size);
     if (!a){
 	printf("Cannot allocate memory for hash table");
+#ifdef DEBUG
 	EMBED_BREAKPOINT;
+#endif
     }
 
     InformGCofMemUsage(sizeof(*a) + sizeof(dynam_array *) * size,TRUE);
 
     a->size = size;
+    a->tmp_binding = R_NilValue;
     return a;
 }
 
@@ -296,7 +304,9 @@ static dynam_array *NewDynamArray(SEXP table, SEXP symbol, SEXP value){
     dynam_array *d = (dynam_array *)calloc(1,sizeof(dynam_array) + sizeof(darray_elem));
     if (!d){
 	printf("Cannot allocate memory for hash table");
+#ifdef DEBUG
 	EMBED_BREAKPOINT;
+#endif
     }
     d->nelem = 1;
     InformGCofMemUsage(sizeof(dynam_array) + sizeof(darray_elem),TRUE);
@@ -311,7 +321,9 @@ static dynam_array *AppendToDynamArray(dynam_array *d, SEXP table, SEXP symbol, 
     InformGCofMemUsage(sizeof(darray_elem),TRUE);
     if (!nd){
 	printf("Cannot allocate memory for hash table");
+#ifdef DEBUG
 	EMBED_BREAKPOINT;
+#endif
     }
 
     nd->nelem += 1;
@@ -338,6 +350,17 @@ void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+
+    if (symbol==R_TmpvalSymbol){
+	if (a->tmp_binding==R_NilValue){
+	    R_PreserveObject(a->tmp_binding = CONS(value,R_NilValue));
+	    SET_TAG(a->tmp_binding,symbol);
+	} else {
+	    SET_BINDING_VALUE(a->tmp_binding,value);
+	}
+	return;
+    }
+
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -369,6 +392,9 @@ static int R_EnvHashSetIfExists(SEXP symbol, SEXP table, SEXP value)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+
+    if (symbol==R_TmpvalSymbol){
+    }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -393,6 +419,16 @@ static int R_EnvHashFlushSymbol(SEXP symbol, SEXP table)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+
+    if (symbol==R_TmpvalSymbol){
+	if (a->tmp_binding != R_NilValue){
+	    R_ReleaseObject(a->tmp_binding);
+	    a->tmp_binding = R_NilValue;
+	    return 1;
+	}
+	return 0;
+    }
+
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -538,6 +574,11 @@ static SEXP R_EnvHashGet(SEXP symbol, SEXP table)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+    if (symbol==R_TmpvalSymbol){
+	if (a->tmp_binding != R_NilValue)
+	    return BINDING_VALUE(a->tmp_binding);
+	return R_UnboundValue;
+    }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -593,6 +634,9 @@ static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+    if (symbol==R_TmpvalSymbol){
+	return a->tmp_binding;
+    }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -679,6 +723,14 @@ static int R_EnvHashDelete(SEXP symbol, SEXP table)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+    if (symbol==R_TmpvalSymbol){
+	if (a->tmp_binding!=R_NilValue){
+	    R_ReleaseObject(a->tmp_binding);
+	    a->tmp_binding = R_NilValue;
+	    return 1;
+	}
+	return 0;
+    }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
