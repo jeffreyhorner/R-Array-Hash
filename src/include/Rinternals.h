@@ -1383,9 +1383,8 @@ SEXP R_FixupRHS(SEXP x, SEXP y);
 #define SET_HASH_BINDING_BIT(b) ((b)->sxpinfo.gp |= HASH_BINDING_MASK)
 
 typedef struct darray_elem_t {
-    struct sxpinfo_struct sxpinfo;
     SEXP symbol;
-    SEXP value;
+    SEXP binding;
 } darray_elem;
 
 typedef struct { // need something better here
