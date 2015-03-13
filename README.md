@@ -51,18 +51,19 @@ time make
 
 ```
 CC="gcc -std=gnu99" \
-CFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
+CFLAGS="-O2 -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
 LDFLAGS="-Wl,-Bsymbolic-functions -Wl,-z,relro" \
 F77=gfortran  \
-FFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4"  \
+FFLAGS="-g -O2"  \
 CXX=g++  \
-CXXFLAGS="-O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
+CXXFLAGS="-O2 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 -g" \
 FC="gfortran" \
-FCFLAGS="-g -O2 -fstack-protector --param=ssp-buffer-size=4" \
+FCFLAGS="-g -O2" \
 LIBnn=lib \
 ./configure  --with-cairo --with-jpeglib --with-readline --with-tcltk --with-system-bzlib \
 --with-system-pcre --with-system-zlib  --enable-R-profiling --enable-R-shlib \
 --enable-memory-profiling \
+--with-blas --with-lapack \
 --build x86_64-linux-gnu build_alias=x86_64-linux-gnu
 time make
 ```
