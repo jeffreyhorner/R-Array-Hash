@@ -684,10 +684,9 @@ static R_size_t R_NodesInUse = 0;
 	R_EnvHashInitCursor(&cursor, __n__); \
 	R_EnvHashCursorNext(&cursor, &found); \
 	while (found){ \
-	    SEXP symbol = cursor.elem->symbol; \
-	    SEXP value = cursor.elem->value; \
-	    dc__action__(symbol, dc__extra__); \
-	    dc__action__(value, dc__extra__); \
+	    SEXP binding = cursor.elem->binding; \
+	    if (binding != R_NilValue) \
+		dc__action__(binding, dc__extra__); \
 	    R_EnvHashCursorNext(&cursor, &found); \
 	} \
     } \

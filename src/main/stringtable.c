@@ -564,6 +564,7 @@ static inline SEXP traverse_st_slot(R_len_t slotn, const char *name, int len, in
 }
 
 
+/*
 SEXP mkCharLenCE_NOCACHE(const char *name, int len, cetype_t enc)
 {
     SEXP cval;
@@ -588,9 +589,6 @@ SEXP mkCharLenCE_NOCACHE(const char *name, int len, cetype_t enc)
 	if (!name[slen]) embedNul = TRUE;
     }
     if (embedNul) {
-	/* This is tricky: we want to make a reasonable job of
-	   representing this string, and EncodeString() is the most
-	   comprehensive */
 	SEXP c = allocVector(intCHARSXP,len);
 	memcpy((char *)DATAPTR(c),name,len);
 	((char *)DATAPTR(c))[len] = 0;
@@ -619,7 +617,7 @@ SEXP mkCharLenCE_NOCACHE(const char *name, int len, cetype_t enc)
 
     switch(enc) {
     case CE_NATIVE:
-	break;          /* don't set encoding */
+	break;
     case CE_UTF8:
 	SET_UTF8(cval); ST_SET_UTF8(e);
 	break;
@@ -633,10 +631,10 @@ SEXP mkCharLenCE_NOCACHE(const char *name, int len, cetype_t enc)
 	error("unknown encoding mask: %d", enc);
     }
     if (is_ascii) SET_ASCII(cval);
-    SET_CACHED(cval);  /* Mark it */
+    SET_CACHED(cval);
 
     return cval;
-}
+}*/
 
 SEXP mkCharLenCE(const char *name, int len, cetype_t enc)
 {
