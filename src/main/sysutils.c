@@ -982,15 +982,15 @@ const char *translateChar0(SEXP x)
 const char *translateCharUTF8(SEXP x)
 {
     void *obj;
-    const char *inbuf, *ans = CHAR(x);
+    const char *inbuf, *ans;
     char *outbuf, *p;
     size_t inb, outb, res;
 
     if(TYPEOF(x) != CHARSXP)
 	error(_("'%s' must be called on a CHARSXP"), "translateCharUTF8");
-    if(x == NA_STRING) return ans;
-    if(IS_UTF8(x)) return ans;
-    if(IS_ASCII(x)) return ans;
+    if(x == NA_STRING) return CHAR(x);
+    if(IS_UTF8(x)) return CHAR(x);
+    if(IS_ASCII(x)) return CHAR(x);
     if(IS_BYTES(x))
 	error(_("translating strings with \"bytes\" encoding is not allowed"));
 
@@ -1005,7 +1005,8 @@ const char *translateCharUTF8(SEXP x)
     R_StringBuffer cbuff = {NULL, 0, MAXELTSIZE};
     R_AllocStringBuffer(0, &cbuff);
 top_of_loop:
-    inbuf = ans; inb = strlen(inbuf);
+    inbuf = CHAR(x);
+    inb = strlen(inbuf);
     outbuf = cbuff.data; outb = cbuff.bufsize - 1;
     /* First initialize output */
     Riconv (obj, NULL, NULL, &outbuf, &outb);
