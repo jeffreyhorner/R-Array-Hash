@@ -2416,9 +2416,9 @@ void str_signif(void *x, R_xlen_t n, const char *type, int width, int digits,
 	else
 	    strcat(form, format);
 #ifdef DEBUG
-	fprintf(stderr, "strsignif.c: form='%s', width=%d, dig=%d\n",
+	/*fprintf(stderr, "strsignif.c: form='%s', width=%d, dig=%d\n",
 		form, width, dig);
-	if(do_fg) fprintf(stderr, "\t\"fg\": f0='%s'.", f0);
+	if(do_fg) fprintf(stderr, "\t\"fg\": f0='%s'.", f0);*/
 #endif
 	if (strcmp("double", type) == 0) {
 	    if(do_fg) /* do smart "f" : */
@@ -2447,28 +2447,28 @@ void str_signif(void *x, R_xlen_t n, const char *type, int width, int digits,
 			    snprintf(result[i], strlen(result[i]) + 1,
 				     f0, dig-1 + -iex, xx);
 #ifdef DEBUG
-			    fprintf(stderr, " x[%d]=%g, iex=%d\n", i, xx, iex);
-			    fprintf(stderr, "\tres. = '%s'; ", result[i]);
+			    /*fprintf(stderr, " x[%d]=%g, iex=%d\n", i, xx, iex);
+			    fprintf(stderr, "\tres. = '%s'; ", result[i]);*/
 #endif
 			    /* Remove trailing  "0"s __ IFF flag has no '#': */
 			    if(rm_trailing_0) {
 				j = strlen(result[i])-1;
 #ifdef DEBUG
-				int jL = j;
+				/*int jL = j;*/
 #endif
 				while(result[i][j] == '0') j--;
 				result[i][j+1] = '\0';
 #ifdef DEBUG
-				fprintf(stderr, "\t>>> jL=%d, j=%d; new res= '%s'\n",
-					jL, j, result[i]);
+				/*fprintf(stderr, "\t>>> jL=%d, j=%d; new res= '%s'\n",
+					jL, j, result[i]);*/
 #endif
 			    }
 
 			} else { /* iex >= -4:	NOT "e-" */
 				/* if iex >= dig, would have "e+" representation */
 #ifdef DEBUG
-			    fprintf(stderr, "\t  iex >= -4; using %d for 'dig'\n",
-				    (iex >= dig) ? (iex+1) : dig);
+			    /*fprintf(stderr, "\t  iex >= -4; using %d for 'dig'\n",
+				    (iex >= dig) ? (iex+1) : dig);*/
 #endif
 			    snprintf(result[i], strlen(result[i]) + 1,
 				     form, width, (iex >= dig) ? (iex+1) : dig, xx);
