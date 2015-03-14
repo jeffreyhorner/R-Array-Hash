@@ -148,7 +148,7 @@ static R_str_elem_t *SlotInsElem(R_len_t slotn, const char *name, R_len_t len)
     if (BYTE2VEC(len+1) <= 2){
 	PROTECT(c = allocVector(intCHARSXP,len));
     } else {
-	PROTECT(c = allocVector(intCHARSXP,sizeof(char *)));
+	PROTECT(c = allocVector(intCHARSXP,1));
 	SET_STRING_VOLATILE(c);
     }
     SETLENGTH(c, len);
