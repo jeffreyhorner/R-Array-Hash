@@ -237,12 +237,23 @@ void R_csort(Rcomplex *x, int n)
 
 
 /* used in platform.c */
+/* Protection of v is very important since a gc can occur during scmp */
 void attribute_hidden ssort(SEXP *x, int n)
 {
     SEXP v;
-#define TYPE_CMP scmp
-    sort_body
-#undef TYPE_CMP
+    Rboolean nalast=TRUE;
+    int i, j, h;
+
+    for (h = 1; h <= n / 9; h = 3 * h + 1);
+    for (; h > 0; h /= 3)
+	for (i = h; i < n; i++) {
+	    PROTECT(v = x[i]);
+	    j = i;
+	    while (j >= h && scmp(x[j - h], v, nalast) > 0)
+		 { x[j] = x[j - h]; j -= h; }
+	    x[j] = v;
+	    UNPROTECT(1);
+	}
 }
 
 void rsort_with_index(double *x, int *indx, int n)
