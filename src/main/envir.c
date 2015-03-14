@@ -236,6 +236,7 @@ typedef struct dynam_array_t {
 typedef struct array_hash_t {
     unsigned int size;
     SEXP tmp_binding;
+    SEXP mru_binding;
     dynam_array *slot[];
 } array_hash;
 
@@ -254,6 +255,7 @@ static array_hash *NewArrayHash(int size){
 
     a->size = size;
     a->tmp_binding = R_NilValue;
+    a->mru_binding = R_NilValue;
     return a;
 }
 
@@ -391,6 +393,9 @@ void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
 	    SET_BINDING_VALUE(a->tmp_binding,value);
 	}
 	return;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	SET_BINDING_VALUE(a->mru_binding,value);
+	return;
     }
 
     i = ARRAY_SLOT(a,symbol);
@@ -400,6 +405,7 @@ void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
 	    e = &d->elem[j];
 	    if (symbol == e->symbol){
 		SET_BINDING_VALUE(e->binding,value);
+		a->mru_binding = e->binding;
 		/*R_EnforceWriteBarrier(table,R_NilValue,e->value);*/
 		return;
 	    }
@@ -431,7 +437,11 @@ static int R_EnvHashSetIfExists(SEXP symbol, SEXP table, SEXP value)
 	}
 	SET_BINDING_VALUE(a->tmp_binding,value);
 	return 1;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	SET_BINDING_VALUE(a->mru_binding,value);
+	return 1;
     }
+
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -439,6 +449,7 @@ static int R_EnvHashSetIfExists(SEXP symbol, SEXP table, SEXP value)
 	    e = &d->elem[j];
 	    if (symbol == e->symbol){
 		SET_BINDING_VALUE(e->binding,value);
+		a->mru_binding = e->binding;
 		/*R_EnforceWriteBarrier(table,R_NilValue,e->value);*/
 		return 1;
 	    }
@@ -464,6 +475,10 @@ static int R_EnvHashFlushSymbol(SEXP symbol, SEXP table)
 	    return 1;
 	}
 	return 0;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	SETCAR(a->mru_binding,R_UnboundValue);
+	a->mru_binding = R_NilValue;
+	return 1;
     }
 
     i = ARRAY_SLOT(a,symbol);
@@ -519,6 +534,8 @@ static SEXP R_EnvHashGet(SEXP symbol, SEXP table)
 	if (a->tmp_binding != R_NilValue)
 	    return BINDING_VALUE(a->tmp_binding);
 	return R_UnboundValue;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	return BINDING_VALUE(a->mru_binding);
     }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
@@ -526,6 +543,7 @@ static SEXP R_EnvHashGet(SEXP symbol, SEXP table)
 	for(j = 0; j < d->nelem; j++){
 	    e = &d->elem[j];
 	    if (symbol == e->symbol){
+		a->mru_binding = e->binding;
 		return BINDING_VALUE(e->binding);
 	    }
 	}
@@ -577,6 +595,8 @@ static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
     EXTRACT_HASH_TABLE(a,table);
     if (symbol==R_TmpvalSymbol){
 	return a->tmp_binding;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	return a->mru_binding;
     }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
@@ -584,6 +604,7 @@ static SEXP R_EnvHashGetLoc(SEXP symbol, SEXP table)
 	for(j = 0; j < d->nelem; j++){
 	    e = &d->elem[j];
 	    if (symbol == e->symbol){
+		a->mru_binding = e->binding;
 		return e->binding;
 	    }
 	}
@@ -665,6 +686,8 @@ static int R_EnvHashDelete(SEXP symbol, SEXP table)
 	for(j = 0; j < d->nelem; j++){
 	    e = &d->elem[j];
 	    if (symbol == e->symbol){
+		if (a->mru_binding == e->binding)
+		    a->mru_binding = R_NilValue;
 		SETCAR(e->binding,R_UnboundValue);
 		LOCK_BINDING(e->binding);
 		e->symbol = R_NilValue;
