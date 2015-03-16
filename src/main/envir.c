@@ -251,7 +251,7 @@ static array_hash *NewArrayHash(int size){
 #endif
     }
 
-    InformGCofMemUsage(sizeof(*a) + sizeof(dynam_array *) * size,TRUE);
+    InformGCofMemUsage(sizeof(array_hash) + sizeof(dynam_array *) * size,TRUE);
 
     a->size = size;
     a->tmp_binding = R_NilValue;
@@ -273,7 +273,7 @@ static void DestroyArrayHash(SEXP x){
 	    }
 	}
 	free(a);
-	size += sizeof(*a);
+	size += sizeof(array_hash);
     }
     R_ClearExternalPtr(x);
     UNSET_ENVHASHTABLE_BIT(x);
@@ -403,8 +403,15 @@ void R_EnvHashSet(SEXP symbol, SEXP table, SEXP value,
 	d = a->slot[i];
 	for(j = 0; j < d->nelem; j++){
 	    e = &d->elem[j];
-	    if (symbol == e->symbol){
-		SET_BINDING_VALUE(e->binding,value);
+	    if (symbol == e->symbol || e->symbol == R_NilValue){
+		if (e->binding == R_NilValue){
+		    PROTECT(e->binding = CONS(value,R_NilValue));
+		    SET_TAG(e->binding,symbol);
+		    e->symbol = symbol;
+		    R_EnforceWriteBarrier(table,R_NilValue,e->binding);
+		    UNPROTECT(1);
+		} else
+		    SET_BINDING_VALUE(e->binding,value);
 		a->mru_binding = e->binding;
 		/*R_EnforceWriteBarrier(table,R_NilValue,e->value);*/
 		return;
