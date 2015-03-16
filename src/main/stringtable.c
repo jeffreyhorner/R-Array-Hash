@@ -70,7 +70,7 @@ void attribute_hidden InitStringTable()
     int memuse=0;
     R_StringTable = 
 	(R_str_table_t *)calloc(1,sizeof(*R_StringTable));
-    memuse += sizeof(*R_StringTable);
+    memuse += sizeof(R_str_table_t);
     if (!R_StringTable)
     	R_Suicide("couldn't allocate memory for string table");
     R_StringTable->slot = (R_str_slot_t **)calloc(STSIZE,sizeof(R_str_slot_t *));
@@ -227,7 +227,7 @@ SEXP R_STInsChrStr(const char *name, R_len_t len)
 
 void R_STCompactSlot(R_str_slot_t *slot, int i)
 {
-    InformGCofMemUsage(slot->dsize,FALSE);
+    InformGCofMemUsage(slot->size,FALSE);
 
     if (slot->dsize == slot->size){
 	free(slot);
