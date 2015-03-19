@@ -2073,6 +2073,9 @@ SEXP attribute_hidden do_gc(SEXP call, SEXP op, SEXP args, SEXP rho)
 	    R_N_maxused = onsize - R_Collected;
 	    R_V_maxused = R_VSize - VHEAP_FREE();
     }
+    
+    /* Add non-gc controlled memory to reporting */
+    R_V_maxused += BYTE2VEC(R_NonGCHeap);
     REAL(value)[10] = R_N_maxused;
     REAL(value)[11] = R_V_maxused;
     REAL(value)[12] = 0.1*ceil(10. * R_N_maxused/Mega*sizeof(SEXPREC));
