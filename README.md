@@ -38,7 +38,7 @@ Configure and build with either of the following:
 
 ```
 CC="gcc" \
-CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID" \
+CFLAGS="-ggdb3 -pipe -std=gnu99 -Wall -pedantic -DPROTECT_PARANOID -DDEBUG" \
 CXX="g++"                                \
 CXXFLAGS="-ggdb -pipe -Wall -pedantic"   \
 FC="gfortran" F77="gfortran"             \
