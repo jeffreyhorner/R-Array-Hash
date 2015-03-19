@@ -326,11 +326,11 @@ static int R_PageReleaseFreq = 1;
 
    Some of the settings can now be adjusted by environment variables.
 */
-static double R_NGrowFrac = 0.70;
-static double R_NShrinkFrac = 0.30;
+static double R_NGrowFrac = 0.60;
+static double R_NShrinkFrac = 0.40;
 
-static double R_VGrowFrac = 0.70;
-static double R_VShrinkFrac = 0.30;
+static double R_VGrowFrac = 0.60;
+static double R_VShrinkFrac = 0.40;
 
 #ifdef SMALL_MEMORY
 /* On machines with only 32M of memory (or on a classic Mac OS port)
@@ -342,9 +342,9 @@ static double R_VGrowIncrFrac = 0.0, R_VShrinkIncrFrac = 0.2;
 static int R_VGrowIncrMin = 100000, R_VShrinkIncrMin = 0;
 #else
 static double R_NGrowIncrFrac = 0.2, R_NShrinkIncrFrac = 0.2;
-static int R_NGrowIncrMin = 40000, R_NShrinkIncrMin = 0;
-static double R_VGrowIncrFrac = 0.2, R_VShrinkIncrFrac = 0.2;
-static int R_VGrowIncrMin = 80000, R_VShrinkIncrMin = 0;
+static int R_NGrowIncrMin = 40000, R_NShrinkIncrMin = 40000;
+static double R_VGrowIncrFrac = 0.4, R_VShrinkIncrFrac = 0.4;
+static int R_VGrowIncrMin = 100000, R_VShrinkIncrMin = 100000;
 #endif
 
 static void init_gc_grow_settings()
@@ -452,6 +452,16 @@ static R_size_t orig_R_VSize;
 
 static R_size_t R_N_maxused=0;
 static R_size_t R_V_maxused=0;
+
+/* Number of objects that survived last full collection */
+static R_size_t R_LongLivedTotal=0;
+
+/* Number of objects that survied all "non-full" collections */
+static R_size_t R_LongLivedPending=0;
+
+/* Size of heap memory not controlled by GC. Hashed environments and the string table
+   update this. */
+static R_size_t R_NonGCHeap = 0;
 
 /* Node Classes.  Non-vector nodes are of class zero. Small vector
    nodes are in classes 1, ..., NUM_SMALL_NODE_CLASSES, and large
@@ -763,6 +773,10 @@ static void DEBUG_CHECK_NODE_COUNTS(char *where)
     SEXP s;
 
     REprintf("Node counts %s:\n", where);
+    REprintf("R_NSize = %lu, R_Collected = %lu, R_NodesInUse = %lu\n",
+	R_NSize, R_Collected,R_NodesInUse);
+    REprintf("R_LongLivedTotal = %lu, R_LongLivedPending = %lu\n",
+	R_LongLivedTotal, R_LongLivedPending);
     for (i = 0; i < NUM_NODE_CLASSES; i++) {
 	for (s = NEXT_NODE(R_GenHeap[i].New), NewCount = 0;
 	     s != R_GenHeap[i].New;
@@ -1116,10 +1130,15 @@ static void AdjustHeapSize(R_size_t size_needed)
   SEXP an__n__ = (s); \
   int an__g__ = (g); \
   if (an__n__ && NODE_GEN_IS_YOUNGER(an__n__, an__g__)) { \
-    if (NODE_IS_MARKED(an__n__)) \
+    if (NODE_IS_MARKED(an__n__)) {\
        R_GenHeap[NODE_CLASS(an__n__)].OldCount[NODE_GENERATION(an__n__)]--; \
-    else \
+       if (NODE_GENERATION(an__n__) < NUM_OLD_GENERATIONS-1) \
+	   R_LongLivedPending--; \
+       if (NODE_CLASS(an__n__) < NUM_SMALL_NODE_CLASSES) \
+	   R_SmallVallocSize -= NodeClassSize[NODE_CLASS(an__n__)]; \
+    } else {\
       MARK_NODE(an__n__); \
+    } \
     SET_NODE_GENERATION(an__n__, an__g__); \
     UNSNAP_NODE(an__n__); \
     SET_NEXT_NODE(an__n__, forwarded_nodes); \
@@ -1138,6 +1157,10 @@ static void AgeNodeAndChildren(SEXP s, int gen)
 	    REprintf("****snapping into wrong generation\n");
 	SNAP_NODE(s, R_GenHeap[NODE_CLASS(s)].Old[gen]);
 	R_GenHeap[NODE_CLASS(s)].OldCount[gen]++;
+	if (gen < NUM_OLD_GENERATIONS-1)
+	    R_LongLivedPending++;
+	if (NODE_CLASS(s) < NUM_SMALL_NODE_CLASSES)
+	    R_SmallVallocSize += NodeClassSize[NODE_CLASS(s)];
 	DO_CHILDREN(s, AGE_NODE, gen);
     }
 }
@@ -1544,6 +1567,10 @@ SEXP attribute_hidden do_regFinaliz(SEXP call, SEXP op, SEXP args, SEXP rho)
 	forwarded_nodes = NEXT_NODE(forwarded_nodes); \
 	SNAP_NODE(s, R_GenHeap[NODE_CLASS(s)].Old[NODE_GENERATION(s)]); \
 	R_GenHeap[NODE_CLASS(s)].OldCount[NODE_GENERATION(s)]++; \
+	if (NODE_GENERATION(s) < NUM_OLD_GENERATIONS-1) \
+	    R_LongLivedPending++; \
+	if (NODE_CLASS(s) < NUM_SMALL_NODE_CLASSES) \
+	    R_SmallVallocSize +=  NodeClassSize[NODE_CLASS(s)]; \
 	FORWARD_CHILDREN(s); \
     } \
 } while (0)
@@ -1556,16 +1583,6 @@ static void RunGenCollect(R_size_t size_needed)
     SEXP forwarded_nodes;
 
     bad_sexp_type_seen = 0;
-
-    /* determine number of generations to collect */
-    while (num_old_gens_to_collect < NUM_OLD_GENERATIONS) {
-	if (collect_counts[num_old_gens_to_collect]-- <= 0) {
-	    collect_counts[num_old_gens_to_collect] =
-		collect_counts_max[num_old_gens_to_collect];
-	    num_old_gens_to_collect++;
-	}
-	else break;
-    }
 
 #ifdef PROTECTCHECK
     num_old_gens_to_collect = NUM_OLD_GENERATIONS;
@@ -1591,14 +1608,17 @@ static void RunGenCollect(R_size_t size_needed)
 	    }
 	}
     }
+    DEBUG_CHECK_NODE_COUNTS("after expelling old to new");
 #endif
-
-    DEBUG_CHECK_NODE_COUNTS("at start");
 
     /* unmark all marked nodes in old generations to be collected and
        move to New space */
     for (gen = 0; gen < num_old_gens_to_collect; gen++) {
 	for (i = 0; i < NUM_NODE_CLASSES; i++) {
+	    if (gen < NUM_OLD_GENERATIONS - 1)
+		R_LongLivedPending -= R_GenHeap[i].OldCount[gen];
+	    if (i < NUM_SMALL_NODE_CLASSES)
+		R_SmallVallocSize -= (R_GenHeap[i].OldCount[gen] * NodeClassSize[i]);
 	    R_GenHeap[i].OldCount[gen] = 0;
 	    s = NEXT_NODE(R_GenHeap[i].Old[gen]);
 	    while (s != R_GenHeap[i].Old[gen]) {
@@ -1612,6 +1632,7 @@ static void RunGenCollect(R_size_t size_needed)
 		BULK_MOVE(R_GenHeap[i].Old[gen], R_GenHeap[i].New);
 	}
     }
+    DEBUG_CHECK_NODE_COUNTS("after move to new");
 
     forwarded_nodes = NULL;
 
@@ -1732,8 +1753,6 @@ static void RunGenCollect(R_size_t size_needed)
     }
     PROCESS_NODES();
 
-    DEBUG_CHECK_NODE_COUNTS("after processing forwarded list");
-
     /* process CHARSXP cache in StringTable */
     if (R_StringTable != NULL) /* in case of GC during initialization */
     {
@@ -1794,8 +1813,6 @@ static void RunGenCollect(R_size_t size_needed)
     /* release large vector allocations */
     ReleaseLargeFreeVectors();
 
-    DEBUG_CHECK_NODE_COUNTS("after releasing large allocated nodes");
-
     /* tell Valgrind about free nodes */
 #if VALGRIND_LEVEL > 1
     for(i = 1; i< NUM_NODE_CLASSES; i++) { 
@@ -1812,28 +1829,79 @@ static void RunGenCollect(R_size_t size_needed)
     for (i = 0; i < NUM_NODE_CLASSES; i++)
 	R_GenHeap[i].Free = NEXT_NODE(R_GenHeap[i].New);
 
-
     /* update heap statistics */
-    R_Collected = R_NSize;
-    R_SmallVallocSize = 0;
-    for (gen = 0; gen < NUM_OLD_GENERATIONS; gen++) {
-	for (i = 1; i < NUM_SMALL_NODE_CLASSES; i++)
-	    R_SmallVallocSize += R_GenHeap[i].OldCount[gen] * NodeClassSize[i];
-	for (i = 0; i < NUM_NODE_CLASSES; i++)
-	    R_Collected -= R_GenHeap[i].OldCount[gen];
+    R_Collected = R_NSize - R_LongLivedPending;
+    R_size_t longlived = 0;
+    for (i = 0; i < NUM_NODE_CLASSES; i++){
+	longlived += R_GenHeap[i].OldCount[NUM_OLD_GENERATIONS-1];
     }
+    R_Collected -= longlived;
     R_NodesInUse = R_NSize - R_Collected;
+    R_LongLivedTotal = longlived;
 
+    DEBUG_CHECK_NODE_COUNTS("after updating heap statistics");
+
+    /* Which level should we collect next? */
+
+    /* We just collected a level that's not the highest, so we've got some thinking to do. */
     if (num_old_gens_to_collect < NUM_OLD_GENERATIONS) {
+
+	/* Our min-free space is gone. Make sure next collection is one level higher than
+	   the one we just collected.*/
 	if (R_Collected < R_MinFreeFrac * R_NSize ||
 	    VHEAP_FREE() < size_needed + R_MinFreeFrac * R_VSize) {
+
+	    collect_counts[num_old_gens_to_collect]--;
 	    num_old_gens_to_collect++;
-	    if (R_Collected <= 0 || VHEAP_FREE() < size_needed)
+
+	    /* Dire straights! We're out of memory, so adjust the heap and immediately
+	       collect at next higher.*/
+	    if (R_Collected <= 0 || VHEAP_FREE() < size_needed){
+		if (gc_reporting){
+		REprintf("GOTO--------------------------------------------------------\n");
+		REprintf("(level %d) VHEAP_FREE = %lu, size_needed = %lu\n",num_old_gens_to_collect-1,VHEAP_FREE(), size_needed);
+		REprintf("R_NSize = %lu, R_Collected = %lu, R_NodesInUse = %lu\n",
+		    R_NSize, R_Collected,R_NodesInUse);
+		REprintf("R_VSize = %lu, R_SVallocSz = %lu, R_LVallocSz = %lu\n",
+		    R_VSize, R_SmallVallocSize, R_LargeVallocSize);
+		REprintf("--------------------------------------------------------\n");
+		}
+
+		AdjustHeapSize(size_needed);
 		goto again;
+	    }
+
+	/* Determine next level to collect by default frequency counts. */
+	} else {
+	    while (num_old_gens_to_collect < NUM_OLD_GENERATIONS) {
+		if (collect_counts[num_old_gens_to_collect]-- <= 0) {
+		    collect_counts[num_old_gens_to_collect] =
+			collect_counts_max[num_old_gens_to_collect];
+		    num_old_gens_to_collect++;
+		}
+		else break;
+	    }
+
+	    /* Optimization: if our next level to collect is a full collection, see if we
+               can skip it if there's less that 25% pending long lived objects. */
+	    if (num_old_gens_to_collect == NUM_OLD_GENERATIONS){
+		if (R_LongLivedPending < R_LongLivedTotal / 4){
+		    if (gc_reporting)
+		    REprintf("SKIPPING LEVEL %d--------------------------------------------\n",
+			num_old_gens_to_collect);
+		    for (i = 0; i < NUM_OLD_GENERATIONS; i++)
+			collect_counts[i] = collect_counts_max[i];
+		    num_old_gens_to_collect = 0;
+		}
+	    }
 	}
-	else num_old_gens_to_collect = 0;
+    /* We just did the highest level. Assume everything's ok and reset
+       frequencies. */
+    } else {
+	for (i = 0; i < NUM_OLD_GENERATIONS; i++)
+	    collect_counts[i] = collect_counts_max[i];
+	num_old_gens_to_collect = 0;
     }
-    else num_old_gens_to_collect = 0;
 
     gen_gc_counts[gens_collected]++;
 
@@ -1853,7 +1921,7 @@ static void RunGenCollect(R_size_t size_needed)
 #endif
 
     if (gc_reporting) {
-	REprintf("Garbage collection %d = %d", gc_count, gen_gc_counts[0]);
+	REprintf("Garbage collection(%d) %d = %d", size_needed, gc_count, gen_gc_counts[0]);
 	for (i = 0; i < NUM_OLD_GENERATIONS; i++)
 	    REprintf("+%d", gen_gc_counts[i + 1]);
 	REprintf(" (level %d) ... ", gens_collected);
@@ -2135,9 +2203,9 @@ void attribute_hidden InitMemory()
 
 void InformGCofMemUsage(size_t size, Rboolean grow){
     if (grow)
-	R_LargeVallocSize += BYTE2VEC(size);
+	R_NonGCHeap += size;
     else
-	R_LargeVallocSize -= BYTE2VEC(size);
+	R_NonGCHeap -= size;
 }
 
 /* Since memory allocated from the heap is non-moving, R_alloc just
@@ -2483,7 +2551,7 @@ SEXP allocVector3(SEXPTYPE type, R_xlen_t length, R_allocator_t *allocator)
 #endif
 	    s->sxpinfo = UnmarkedNodeTemplate.sxpinfo;
 	    SET_NODE_CLASS(s, node_class);
-	    R_SmallVallocSize += alloc_size;
+	    /*R_SmallVallocSize += alloc_size;*/
 	    ATTRIB(s) = R_NilValue;
 	    TYPEOF(s) = type;
 	    SET_SHORT_VEC_LENGTH(s, (R_len_t) length); // is 1
@@ -2633,7 +2701,7 @@ SEXP allocVector3(SEXPTYPE type, R_xlen_t length, R_allocator_t *allocator)
 	    s->sxpinfo = UnmarkedNodeTemplate.sxpinfo;
 	    INIT_REFCNT(s);
 	    SET_NODE_CLASS(s, node_class);
-	    R_SmallVallocSize += alloc_size;
+	    /*R_SmallVallocSize += alloc_size;*/
 	    SET_SHORT_VEC_LENGTH(s, (R_len_t) length);
 	}
 	else {
@@ -2941,6 +3009,14 @@ static void R_gc_internal(R_size_t size_needed)
 	vcells = 0.1*ceil(10*vcells * vsfac/Mega);
 	REprintf("%.1f Mbytes of vectors used (%d%%)\n",
 		 vcells, (int) (vfrac + 0.5));
+	REprintf("%.1f Mbytes of non GC heap used\n",R_NonGCHeap/Mega);
+	REprintf("LLPending = %lu, LLTotal = %lu (%d%%)\n",
+	    R_LongLivedPending, R_LongLivedTotal,
+	    (int)(100.0 * R_LongLivedPending)/R_LongLivedTotal);
+	REprintf("R_NSize = %lu, R_Collected = %lu, R_NodesInUse = %lu\n",
+	    R_NSize, R_Collected,R_NodesInUse);
+	REprintf("R_VSize = %lu, R_SVallocSz = %lu, R_LVallocSz = %lu\n",
+	    R_VSize, R_SmallVallocSize, R_LargeVallocSize);
     }
 
 #ifdef IMMEDIATE_FINALIZERS
