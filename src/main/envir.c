@@ -466,43 +466,6 @@ static int R_EnvHashSetIfExists(SEXP symbol, SEXP table, SEXP value)
     return 0;
 }
 
-static int R_EnvHashFlushSymbol(SEXP symbol, SEXP table)
-{
-    darray_elem *e;
-    array_hash *a;
-    unsigned int i,j;
-    dynam_array *d;
-    
-    EXTRACT_HASH_TABLE(a,table);
-
-    if (symbol==R_TmpvalSymbol){
-	if (a->tmp_binding != R_NilValue){
-	    R_ReleaseObject(a->tmp_binding);
-	    a->tmp_binding = R_NilValue;
-	    return 1;
-	}
-	return 0;
-    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
-	SETCAR(a->mru_binding,R_UnboundValue);
-	a->mru_binding = R_NilValue;
-	return 1;
-    }
-
-    i = ARRAY_SLOT(a,symbol);
-    if (a->slot[i]){
-	d = a->slot[i];
-	for(j = 0; j < d->nelem; j++){
-	    e = &d->elem[j];
-	    if (symbol == e->symbol){
-		SETCAR(e->binding,R_UnboundValue);
-		return 1;
-	    }
-	}
-    }
-
-    return 0;
-}
-
 /* For converting non-hashed environment with existing bindings */
 static void R_EnvHashSetBinding(SEXP binding, SEXP table)
 {
@@ -566,6 +529,11 @@ static Rboolean R_EnvHashExists(SEXP symbol, SEXP table)
     dynam_array *d;
     
     EXTRACT_HASH_TABLE(a,table);
+    if (symbol==R_TmpvalSymbol){
+	return (a->tmp_binding != R_NilValue)? TRUE: FALSE;
+    } else if (a->mru_binding != R_NilValue && symbol==TAG(a->mru_binding)){
+	return TRUE;
+    }
     i = ARRAY_SLOT(a,symbol);
     if (a->slot[i]){
 	d = a->slot[i];
@@ -1326,7 +1294,9 @@ void attribute_hidden InitGlobalEnv()
 #ifdef USE_GLOBAL_CACHE
 static void R_FlushGlobalCache(SEXP sym)
 {
-    if (R_EnvHashFlushSymbol(sym, R_GlobalCache)){
+    SEXP entry = R_EnvHashGetLoc(sym, R_GlobalCache);
+    if (entry != R_NilValue) {
+	SETCAR(entry, R_UnboundValue);
 #ifdef FAST_BASE_CACHE_LOOKUP
         UNSET_BASE_SYM_CACHED(sym);
 #endif

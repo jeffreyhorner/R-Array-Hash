@@ -1180,9 +1180,8 @@ SEXP R_execMethod(SEXP op, SEXP rho)
 	SEXP symbol =  TAG(next);
 	R_varloc_t loc;
 	int missing;
-	PROTECT((SEXP)(loc = R_findVarLocInFrame(rho,symbol)));
+	loc = R_findVarLocInFrame(rho,symbol);
 	if(loc == NULL){
-	    UNPROTECT(1);
 	    error(_("could not find symbol \"%s\" in environment of the generic function"),
 		  CHAR(PRINTNAME(symbol)));
 	}
@@ -1190,7 +1189,6 @@ SEXP R_execMethod(SEXP op, SEXP rho)
 	val = R_GetVarLocValue(loc);
 	SET_FRAME(newrho, CONS(val, FRAME(newrho)));
 	SET_TAG(FRAME(newrho), symbol);
-	UNPROTECT(1);
 	if (missing) {
 	    SET_MISSING(FRAME(newrho), missing);
 	    if (TYPEOF(val) == PROMSXP && PRENV(val) == rho) {
@@ -1402,11 +1400,7 @@ static R_INLINE Rboolean SET_BINDING_VALUE(SEXP loc, SEXP value) {
     if (loc != R_NilValue &&
 	! BINDING_IS_LOCKED(loc) && ! IS_ACTIVE_BINDING(loc)) {
 	if (CAR(loc) != value) {
-	    if (IS_HASH_BINDING(loc)){
-		R_SetVarLocValue((R_varloc_t)loc, value);
-	    } else {
-		SETCAR(loc, value);
-	    }
+	    SETCAR(loc, value);
 	    if (MISSING(loc))
 		SET_MISSING(loc, 0);
 	}
