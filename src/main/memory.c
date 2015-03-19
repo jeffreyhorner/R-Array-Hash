@@ -1883,7 +1883,13 @@ static void RunGenCollect(R_size_t size_needed)
 	    }
 
 	    /* Optimization: if our next level to collect is a full collection, see if we
-               can skip it if there's less that 25% pending long lived objects. */
+               can skip it if there's less that 25% pending long lived objects.
+
+	       Based on Python's gc implementation (v2.7.9) and originally suggested by
+	       Martin von Löwis on the python-dev mailing list:
+	       http://mail.python.org/pipermail/python-dev/2008-June/080579.html
+
+	     */
 	    if (num_old_gens_to_collect == NUM_OLD_GENERATIONS){
 		if (R_LongLivedPending < R_LongLivedTotal / 4){
 		    if (gc_reporting)
