@@ -1,0 +1,2096 @@
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests/Examples'
+Testing examples for package ‘base’
+Testing examples for package ‘tools’
+  comparing ‘tools-Ex.Rout’ to ‘tools-Ex.Rout.save’ ... OK
+Testing examples for package ‘utils’
+Testing examples for package ‘grDevices’
+  comparing ‘grDevices-Ex.Rout’ to ‘grDevices-Ex.Rout.save’ ... OK
+Testing examples for package ‘graphics’
+  comparing ‘graphics-Ex.Rout’ to ‘graphics-Ex.Rout.save’ ... OK
+Testing examples for package ‘stats’
+  comparing ‘stats-Ex.Rout’ to ‘stats-Ex.Rout.save’ ...
+6481c6481
+< Grand Mean: 291.5937
+---
+> Grand Mean: 291.5938
+14665c14665
+< Grand Mean: 291.5937
+---
+> Grand Mean: 291.5938
+Testing examples for package ‘datasets’
+  comparing ‘datasets-Ex.Rout’ to ‘datasets-Ex.Rout.save’ ... OK
+Testing examples for package ‘methods’
+Testing examples for package ‘grid’
+  comparing ‘grid-Ex.Rout’ to ‘grid-Ex.Rout.save’ ... OK
+Testing examples for package ‘splines’
+  comparing ‘splines-Ex.Rout’ to ‘splines-Ex.Rout.save’ ... OK
+Testing examples for package ‘stats4’
+  comparing ‘stats4-Ex.Rout’ to ‘stats4-Ex.Rout.save’ ... OK
+Testing examples for package ‘tcltk’
+Testing examples for package ‘compiler’
+Testing examples for package ‘parallel’
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests/Examples'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running strict specific tests
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'eval-etc.R' ... OK
+  comparing 'eval-etc.Rout' to './eval-etc.Rout.save' ... OK
+running code in 'simple-true.R' ... OK
+  comparing 'simple-true.Rout' to './simple-true.Rout.save' ... OK
+running code in 'arith-true.R' ... OK
+  comparing 'arith-true.Rout' to './arith-true.Rout.save' ... OK
+running code in 'arith.R' ... OK
+  comparing 'arith.Rout' to './arith.Rout.save' ... OK
+running code in 'lm-tests.R' ... OK
+  comparing 'lm-tests.Rout' to './lm-tests.Rout.save' ... OK
+running code in 'ok-errors.R' ... OK
+  comparing 'ok-errors.Rout' to './ok-errors.Rout.save' ... OK
+running code in 'method-dispatch.R' ... OK
+  comparing 'method-dispatch.Rout' to './method-dispatch.Rout.save' ... OK
+running code in 'array-subset.R' ... OK
+  comparing 'array-subset.Rout' to './array-subset.Rout.save' ... OK
+running code in 'any-all.R' ... OK
+  comparing 'any-all.Rout' to './any-all.Rout.save' ... OK
+running code in 'd-p-q-r-tests.R' ... OK
+  comparing 'd-p-q-r-tests.Rout' to './d-p-q-r-tests.Rout.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running sloppy specific tests
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'complex.R' ... OK
+  comparing 'complex.Rout' to './complex.Rout.save' ... OK
+running code in 'print-tests.R' ... OK
+  comparing 'print-tests.Rout' to './print-tests.Rout.save' ... OK
+running code in 'lapack.R' ... OK
+  comparing 'lapack.Rout' to './lapack.Rout.save' ... OK
+running code in 'datasets.R' ... OK
+  comparing 'datasets.Rout' to './datasets.Rout.save' ... OK
+running code in 'datetime.R' ... OK
+  comparing 'datetime.Rout' to './datetime.Rout.save' ... OK
+running code in 'iec60559.R' ... OK
+  comparing 'iec60559.Rout' to './iec60559.Rout.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running regression tests ...
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'reg-tests-1a.R' ... OK
+running code in 'reg-tests-1b.R' ... OK
+running code in 'reg-tests-1c.R' ... OK
+running code in 'reg-tests-2.R' ... OK
+  comparing 'reg-tests-2.Rout' to './reg-tests-2.Rout.save' ... OK
+running code in 'reg-examples1.R' ... OK
+running code in 'reg-examples2.R' ... OK
+running code in 'reg-packages.R' ... OK
+running code in 'reg-IO.R' ... OK
+  comparing 'reg-IO.Rout' to './reg-IO.Rout.save' ... OK
+running code in 'reg-IO2.R' ... OK
+  comparing 'reg-IO2.Rout' to './reg-IO2.Rout.save' ... OK
+running code in 'reg-plot.R' ... OK
+  comparing 'reg-plot.pdf' to './reg-plot.pdf.save' ... OK
+running code in 'reg-S4.R' ... OK
+  comparing 'reg-S4.Rout' to './reg-S4.Rout.save' ... OK
+running code in 'reg-BLAS.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'reg-tests-3.R' ... OK
+  comparing 'reg-tests-3.Rout' to './reg-tests-3.Rout.save' ... OK
+running code in 'reg-examples3.R' ... OK
+  comparing 'reg-examples3.Rout' to './reg-examples3.Rout.save' ... OK
+running tests of plotting Latin-1
+  expect failure or some differences if not in a Latin-1 or UTF-8 locale
+running code in 'reg-plot-latin1.R' ... OK
+  comparing 'reg-plot-latin1.pdf' to './reg-plot-latin1.pdf.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of Internet functions
+  expect some differences
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'internet.R' ... OK
+  comparing 'internet.Rout' to './internet.Rout.save' ...17c17
+< [1] 6419
+---
+> [1] 6254
+ OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of date-time printing
+  expect platform-specific differences
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'datetime2.R' ... OK
+  comparing 'datetime2.Rout' to './datetime2.Rout.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of documentation examples
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'R-intro.R' ... OK
+  comparing 'R-intro.Rout' to './R-intro.Rout.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+gcc -std=gnu99 -I/home/jeffrey/Projects/R/R-Array-Hash/include -DNDEBUG  -I/usr/local/include    -fpic  -O2 -Werror=format-security -D_FORTIFY_SOURCE=2 -g  -c R-exts.c -o R-exts.o
+gcc -std=gnu99 -shared -L/home/jeffrey/Projects/R/R-Array-Hash/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o R-exts.so R-exts.o -L/home/jeffrey/Projects/R/R-Array-Hash/lib -lR
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'R-exts.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of consistency of as/is.*
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+creating 'isas-tests.R'
+running code in 'isas-tests.R' ... OK
+  comparing 'isas-tests.Rout' to './isas-tests.Rout.save' ... OK
+rm isas-tests.R
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of random deviate generation
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'p-r-random-tests.R' ... OK
+  comparing 'p-r-random-tests.Rout' to './p-r-random-tests.Rout.save' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running demos from base and stats
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'demos.R' ... OK
+  comparing 'demos.Rout' to './demos.Rout.save' ... OK
+running code in 'demos2.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests of primitives
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'primitives.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running regexp regression tests
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running more Internet and socket tests
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running code in 'internet2.R' ... OK
+running code in 'libcurl.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+running tests to possibly trigger segfaults
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+creating 'no-segfault.R'
+running code in 'no-segfault.R' ... OK
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+testing building standalone Rmath
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/src/nmath/standalone'
+check output can be found in src/nmath/standalone/check.log
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/src/nmath/standalone'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[2]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+checking package 'base'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/base.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘base’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Packages unavailable to check Rd xrefs: ‘date’, ‘chron’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking examples ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/base.Rcheck/00check.log’
+for details.
+
+checking package 'tools'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/tools.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘tools’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking R/sysdata.rda ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘undoc.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'utils'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/utils.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘utils’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘Sweave-tst.R’
+  Running ‘completion.R’
+ OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘Sweave.Rnw’ ... OK
+ OK
+* checking re-building of vignette outputs ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'grDevices'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/grDevices.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘grDevices’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+prettyDate : makeOutput: possible error in round(at, units = "days"):
+  unused argument (units = "days")
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘ps-tests.R’
+  Comparing ‘ps-tests.Rout’ to ‘ps-tests.Rout.save’ ... OK
+  Running ‘xfig-tests.R’
+  Comparing ‘xfig-tests.Rout’ to ‘xfig-tests.Rout.save’ ... OK
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/grDevices.Rcheck/00check.log’
+for details.
+
+checking package 'graphics'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/graphics.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘graphics’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Package unavailable to check Rd xrefs: ‘vcd’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/graphics.Rcheck/00check.log’
+for details.
+
+checking package 'stats'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/stats.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘stats’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Packages unavailable to check Rd xrefs: ‘coin’, ‘pcaPP’, ‘Kendall’, ‘SuppDists’, ‘pspearman’, ‘multcomp’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘NLSstClosest.R’
+  Running ‘arimaML.R’
+ ERROR
+Running the tests in ‘tests/arimaML.R’ failed.
+Last 13 lines of output:
+  > ##' @param phi1, phis: phi[1], phi[s] .. defaults: close to non-stationarity
+  > mkPhi <- function(s, phi1 = 0.0001, phis = 0.99) {
+  +     stopifnot(length(s) > 0, s == as.integer(s), s >= 2,
+  +               length(phi1) == 1, is.numeric(phi1), length(phis) == 1)
+  +     c(phi1, rep(0, s-2), phis, -phi1*phis)
+  + }
+  > 
+  > ##--{end of function defs}-------------------------------------------------------
+  > 
+  > ## cases with p=0, q=0 :
+  > chkQ0(numeric(), numeric())
+  Error: "Mean absolute difference: 1" is not TRUE
+  Execution halted
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 ERROR, 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/stats.Rcheck/00check.log’
+for details.
+
+checking package 'datasets'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/datasets.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘datasets’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking examples ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'methods'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/methods.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘methods’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘S3.R’
+  Running ‘basicRefClass.R’
+ ERROR
+Running the tests in ‘tests/basicRefClass.R’ failed.
+Last 13 lines of output:
+  Tracing reference method "edit" for object from class "matrixEditor"
+  [1] "edit"
+  > 
+  > ## debugging all objects from class mEditor in method $undo()
+  > mEditor$trace(undo, quote(mETrace <<- TRUE))
+  Tracing reference method "undo" for class "matrixEditor"
+  [1] "undo"
+  > 
+  > xxTrace <- mETrace <- FALSE
+  > xx$edit(2,3,100)
+  Error in data[i, j] : object of type 'closure' is not subsettable
+  Calls: <Anonymous>
+  Execution halted
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 ERROR
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/methods.Rcheck/00check.log’
+for details.
+
+checking package 'grid'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/grid.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘grid’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘bugs.R’
+  Running ‘reg.R’
+  Running ‘testls.R’
+  Comparing ‘testls.Rout’ to ‘testls.Rout.save’ ... OK
+  Running ‘units.R’
+ OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘displaylist.Rnw’ ... OK
+   ‘frame.Rnw’ ... OK
+   ‘grid.Rnw’ ... OK
+   ‘grobs.Rnw’ ... OK
+   ‘interactive.Rnw’ ... OK
+   ‘locndimn.Rnw’ ... OK
+   ‘moveline.Rnw’ ... OK
+   ‘nonfinite.Rnw’ ... OK
+   ‘plotexample.Rnw’ ... OK
+   ‘rotated.Rnw’ ... OK
+   ‘saveload.Rnw’ ... OK
+   ‘sharing.Rnw’ ... OK
+   ‘viewports.Rnw’ ... OK
+ OK
+* checking re-building of vignette outputs ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'splines'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/splines.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘splines’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'stats4'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/stats4.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘stats4’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘confint.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'tcltk'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/tcltk.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘tcltk’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking examples ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'compiler'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/compiler.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘compiler’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘assign.R’
+  Running ‘basics.R’
+  Running ‘const.R’
+  Running ‘envir.R’
+  Running ‘jit.R’
+  Running ‘loop.R’
+  Running ‘switch.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'parallel'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/parallel.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* using option ‘--no-build-vignettes’
+* looks like ‘parallel’ is a base package
+* skipping installation test
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking compiled code ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... SKIPPED
+* checking tests ...
+  Running ‘Master.R’
+ OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘parallel.Rnw’ ... OK
+ OK
+* checking re-building of vignette outputs ... SKIPPED
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+make[2]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+make[1]: Entering directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
+checking package 'MASS'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/MASS.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘MASS/DESCRIPTION’ ... OK
+* this is package ‘MASS’ version ‘7.3-39’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking differences from ‘MASS-Ex.Rout’ to ‘MASS-Ex.Rout.save’ ... OK
+
+870c870
+< -2.42080776 -0.61510520 -0.03573836  0.81641138  2.15153496 
+---
+> -2.42080780 -0.61510520 -0.03573836  0.81641138  2.15153499 
+1528c1528
+< factor(subject)2   4.200e-15  2.828e-01   0.000 1.000000    
+---
+> factor(subject)2  -2.300e-15  2.828e-01   0.000 1.000000    
+2378c2378
+< ContHigh                          -1.039e-15  1.690e-01   0.000 1.000000    
+---
+> ContHigh                          -1.490e-15  1.690e-01   0.000 1.000000    
+3203c3203
+<  -3.631e+01    7.292e-01    4.167e-01   -2.425e-16  
+---
+>  -3.631e+01    7.292e-01    4.167e-01   -8.131e-17  
+3366c3366
+<    0.07776401    3.08304824    3.30137838    3.44562531    2.80464433 
+---
+>    0.07776401    3.08304824    3.30137838    3.44562531    2.80464434 
+3368c3368
+<    2.60835015    3.03357724    3.52301734    3.38711844    3.46709395 
+---
+>    2.60835015    3.03357725    3.52301734    3.38711844    3.46709396 
+3370c3370
+<    3.81438456    3.73878664    3.51332580    3.39741114    3.47088607 
+---
+>    3.81438456    3.73878664    3.51332581    3.39741115    3.47088608 
+3372c3372
+<    3.72895847    3.31863862    3.37938672    2.96452195    3.58468686 
+---
+>    3.72895847    3.31863862    3.37938673    2.96452195    3.58468686 
+3374c3374
+<    3.39628029    3.36998871   -2.96015461 
+---
+>    3.39628029    3.36998872   -2.96015460 
+3397c3397
+< Achieved convergence tolerance: 4.925e-06
+---
+> Achieved convergence tolerance: 4.923e-06
+5132c5132
+< Achieved convergence tolerance: 4.354e-06
+---
+> Achieved convergence tolerance: 4.324e-06
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘confint.R’
+  Running ‘fitdistr.R’
+  Comparing ‘fitdistr.Rout’ to ‘fitdistr.Rout.save’ ... OK
+  Running ‘glm.nb.R’
+  Running ‘hubers.R’
+  Running ‘lme.R’
+  Running ‘polr.R’
+  Running ‘profile.R’
+  Running ‘regression.R’
+  Comparing ‘regression.Rout’ to ‘regression.Rout.save’ ... OK
+  Running ‘rlm.R’
+  Running ‘scripts.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/MASS.Rcheck/00check.log’
+for details.
+
+checking package 'lattice'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/lattice.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘lattice/DESCRIPTION’ ... OK
+* this is package ‘lattice’ version ‘0.20-30’
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Package which this enhances but not available for checking: ‘chron’
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Package unavailable to check Rd xrefs: ‘zoo’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘MASSch04.R’
+  Running ‘dates.R’
+  Running ‘dotplotscoping.R’
+  Running ‘fontsize.R’
+  Running ‘levelplot.R’
+  Running ‘scales.R’
+  Running ‘temp.R’
+  Running ‘test.R’
+  Running ‘wireframe.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 3 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/lattice.Rcheck/00check.log’
+for details.
+
+checking package 'Matrix'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/Matrix.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘Matrix/DESCRIPTION’ ... OK
+* this is package ‘Matrix’ version ‘1.1-5’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Package suggested but not available for checking: ‘expm’
+
+Packages which this enhances but not available for checking:
+  ‘MatrixModels’ ‘graph’ ‘SparseM’ ‘sfsmisc’
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... NOTE
+  installed size is  6.7Mb
+  sub-directories of 1Mb or more:
+    R      2.0Mb
+    libs   2.6Mb
+* checking package directory ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Packages unavailable to check Rd xrefs: ‘SparseM’, ‘spdep’, ‘expm’, ‘graph’, ‘igraph’, ‘sfsmisc’, ‘MatrixModels’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking sizes of PDF files under ‘inst/doc’ ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘Class+Meth.R’
+  Running ‘Simple.R’
+  Running ‘abIndex-tsts.R’
+  Running ‘base-matrix-fun.R’
+  Running ‘bind.R’
+  Comparing ‘bind.Rout’ to ‘bind.Rout.save’ ... OK
+  Running ‘dg_Matrix.R’
+  Running ‘dpo-test.R’
+  Running ‘dtpMatrix.R’
+  Running ‘factorizing.R’
+  Running ‘group-methods.R’
+  Running ‘indexing.R’
+  Comparing ‘indexing.Rout’ to ‘indexing.Rout.save’ ... OK
+  Running ‘matprod.R’
+  Running ‘matr-exp.R’
+  Running ‘other-pkgs.R’
+  Running ‘spModel.matrix.R’
+  Running ‘validObj.R’
+  Running ‘write-read.R’
+ OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘Comparisons.Rnw’ using ‘UTF-8’ ... OK
+   ‘Design-issues.Rnw’ using ‘UTF-8’ ... OK
+   ‘Intro2Matrix.Rnw’ using ‘UTF-8’ ... OK
+   ‘Introduction.Rnw’ using ‘UTF-8’ ... OK
+   ‘sparseModels.Rnw’ using ‘UTF-8’ ... OK
+ OK
+* checking re-building of vignette outputs ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 4 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/Matrix.Rcheck/00check.log’
+for details.
+
+checking package 'nlme'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/nlme.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘nlme/DESCRIPTION’ ... OK
+* this is package ‘nlme’ version ‘3.1-120’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Package suggested but not available for checking: ‘Hmisc’
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... ERROR
+Error in iconv(db, encoding, sub = "byte") : 
+  embedded nul in string: 'José Pinheiro [aut] (S version),\n  Douglas Bates [aut] (up to 2007),\n  Saikat DebRoy [ctb] (up to 2002),\n  Deepayan Sarkar [ctb] (up to 2005),\n  EISPACK authors [ctb] (src/rs.f),\n  R-core [au'
+Calls: <Anonymous> -> iconv
+Execution halted
+Status: 1 ERROR, 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/nlme.Rcheck/00check.log’
+for details.
+
+checking package 'survival'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/survival.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘survival/DESCRIPTION’ ... OK
+* this is package ‘survival’ version ‘2.38-1’
+* checking package namespace information ... OK
+* checking package dependencies ... NOTE
+Package suggested but not available for checking: ‘cmprsk’
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking sizes of PDF files under ‘inst/doc’ ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘aareg.R’
+  Comparing ‘aareg.Rout’ to ‘aareg.Rout.save’ ... OK
+  Running ‘anova.R’
+  Comparing ‘anova.Rout’ to ‘anova.Rout.save’ ... OK
+  Running ‘bladder.R’
+  Comparing ‘bladder.Rout’ to ‘bladder.Rout.save’ ... OK
+  Running ‘book1.R’
+  Comparing ‘book1.Rout’ to ‘book1.Rout.save’ ... OK
+  Running ‘book2.R’
+  Comparing ‘book2.Rout’ to ‘book2.Rout.save’ ... OK
+  Running ‘book3.R’
+  Comparing ‘book3.Rout’ to ‘book3.Rout.save’ ... OK
+  Running ‘book4.R’
+  Comparing ‘book4.Rout’ to ‘book4.Rout.save’ ... OK
+  Running ‘book5.R’
+  Comparing ‘book5.Rout’ to ‘book5.Rout.save’ ... OK
+  Running ‘book6.R’
+  Comparing ‘book6.Rout’ to ‘book6.Rout.save’ ... OK
+  Running ‘book7.R’
+  Comparing ‘book7.Rout’ to ‘book7.Rout.save’ ... OK
+  Running ‘cancer.R’
+  Comparing ‘cancer.Rout’ to ‘cancer.Rout.save’ ... OK
+  Running ‘clogit.R’
+  Comparing ‘clogit.Rout’ to ‘clogit.Rout.save’ ... OK
+  Running ‘concordance.R’
+  Comparing ‘concordance.Rout’ to ‘concordance.Rout.save’ ... OK
+  Running ‘counting.R’
+  Comparing ‘counting.Rout’ to ‘counting.Rout.save’ ... OK
+  Running ‘coxsurv.R’
+  Comparing ‘coxsurv.Rout’ to ‘coxsurv.Rout.save’ ... OK
+  Running ‘coxsurv2.R’
+  Comparing ‘coxsurv2.Rout’ to ‘coxsurv2.Rout.save’ ... OK
+  Running ‘coxsurv3.R’
+  Comparing ‘coxsurv3.Rout’ to ‘coxsurv3.Rout.save’ ... OK
+  Running ‘coxsurv4.R’
+  Comparing ‘coxsurv4.Rout’ to ‘coxsurv4.Rout.save’ ... OK
+  Running ‘detail.R’
+  Comparing ‘detail.Rout’ to ‘detail.Rout.save’ ... OK
+  Running ‘difftest.R’
+  Comparing ‘difftest.Rout’ to ‘difftest.Rout.save’ ... OK
+  Running ‘doaml.R’
+  Comparing ‘doaml.Rout’ to ‘doaml.Rout.save’ ... OK
+  Running ‘doweight.R’
+  Comparing ‘doweight.Rout’ to ‘doweight.Rout.save’ ... OK
+  Running ‘expected.R’
+  Comparing ‘expected.Rout’ to ‘expected.Rout.save’ ... OK
+  Running ‘expected2.R’
+  Comparing ‘expected2.Rout’ to ‘expected2.Rout.save’ ... OK
+  Running ‘factor.R’
+  Comparing ‘factor.Rout’ to ‘factor.Rout.save’ ... OK
+  Running ‘factor2.R’
+  Comparing ‘factor2.Rout’ to ‘factor2.Rout.save’ ... OK
+  Running ‘fr_cancer.R’
+  Comparing ‘fr_cancer.Rout’ to ‘fr_cancer.Rout.save’ ... OK
+  Running ‘fr_kidney.R’
+  Comparing ‘fr_kidney.Rout’ to ‘fr_kidney.Rout.save’ ... OK
+  Running ‘fr_lung.R’
+  Comparing ‘fr_lung.Rout’ to ‘fr_lung.Rout.save’ ... OK
+  Running ‘fr_ovarian.R’
+  Comparing ‘fr_ovarian.Rout’ to ‘fr_ovarian.Rout.save’ ... OK
+  Running ‘fr_rat1.R’
+  Comparing ‘fr_rat1.Rout’ to ‘fr_rat1.Rout.save’ ... OK
+  Running ‘fr_rat2.R’
+  Comparing ‘fr_rat2.Rout’ to ‘fr_rat2.Rout.save’ ... OK
+  Running ‘fr_resid.R’
+  Comparing ‘fr_resid.Rout’ to ‘fr_resid.Rout.save’ ... OK
+  Running ‘fr_simple.R’
+  Comparing ‘fr_simple.Rout’ to ‘fr_simple.Rout.save’ ... OK
+  Running ‘frailty.R’
+  Comparing ‘frailty.Rout’ to ‘frailty.Rout.save’ ... OK
+  Running ‘frank.R’
+  Comparing ‘frank.Rout’ to ‘frank.Rout.save’ ... OK
+  Running ‘infcox.R’
+  Comparing ‘infcox.Rout’ to ‘infcox.Rout.save’ ... OK
+  Running ‘jasa.R’
+  Comparing ‘jasa.Rout’ to ‘jasa.Rout.save’ ... OK
+  Running ‘model.matrix.R’
+  Comparing ‘model.matrix.Rout’ to ‘model.matrix.Rout.save’ ... OK
+  Running ‘mrtest.R’
+  Comparing ‘mrtest.Rout’ to ‘mrtest.Rout.save’ ... OK
+  Running ‘nested.R’
+  Comparing ‘nested.Rout’ to ‘nested.Rout.save’ ... OK
+  Running ‘ovarian.R’
+  Comparing ‘ovarian.Rout’ to ‘ovarian.Rout.save’ ... OK
+  Running ‘plot.R’
+  Running ‘prednew.R’
+  Comparing ‘prednew.Rout’ to ‘prednew.Rout.save’ ... OK
+  Running ‘pspline.R’
+  Comparing ‘pspline.Rout’ to ‘pspline.Rout.save’ ... OK
+  Running ‘pyear.R’
+  Comparing ‘pyear.Rout’ to ‘pyear.Rout.save’ ... OK
+  Running ‘quantile.R’
+  Comparing ‘quantile.Rout’ to ‘quantile.Rout.save’ ... OK
+  Running ‘r_capacitor.R’
+  Comparing ‘r_capacitor.Rout’ to ‘r_capacitor.Rout.save’ ... OK
+  Running ‘r_donnell.R’
+  Comparing ‘r_donnell.Rout’ to ‘r_donnell.Rout.save’ ... OK
+  Running ‘r_lung.R’
+  Comparing ‘r_lung.Rout’ to ‘r_lung.Rout.save’ ... OK
+  Running ‘r_peterson.R’
+  Comparing ‘r_peterson.Rout’ to ‘r_peterson.Rout.save’ ... OK
+  Running ‘r_resid.R’
+  Comparing ‘r_resid.Rout’ to ‘r_resid.Rout.save’ ... OK
+  Running ‘r_sas.R’
+  Comparing ‘r_sas.Rout’ to ‘r_sas.Rout.save’ ... OK
+  Running ‘r_scale.R’
+  Comparing ‘r_scale.Rout’ to ‘r_scale.Rout.save’ ... OK
+  Running ‘r_stanford.R’
+  Comparing ‘r_stanford.Rout’ to ‘r_stanford.Rout.save’ ... OK
+  Running ‘r_strata.R’
+  Comparing ‘r_strata.Rout’ to ‘r_strata.Rout.save’ ... OK
+  Running ‘r_tdist.R’
+  Comparing ‘r_tdist.Rout’ to ‘r_tdist.Rout.save’ ... OK
+  Running ‘r_user.R’
+  Comparing ‘r_user.Rout’ to ‘r_user.Rout.save’ ... OK
+  Running ‘ratetable.R’
+  Comparing ‘ratetable.Rout’ to ‘ratetable.Rout.save’ ... OK
+  Running ‘rounding.R’
+  Comparing ‘rounding.Rout’ to ‘rounding.Rout.save’ ... OK
+  Running ‘singtest.R’
+  Comparing ‘singtest.Rout’ to ‘singtest.Rout.save’ ... OK
+  Running ‘strata2.R’
+  Comparing ‘strata2.Rout’ to ‘strata2.Rout.save’ ... OK
+  Running ‘stratatest.R’
+  Comparing ‘stratatest.Rout’ to ‘stratatest.Rout.save’ ... OK
+  Running ‘summary_survfit.R’
+  Comparing ‘summary_survfit.Rout’ to ‘summary_survfit.Rout.save’ ... OK
+  Running ‘surv.R’
+  Comparing ‘surv.Rout’ to ‘surv.Rout.save’ ... OK
+  Running ‘survfit2.R’
+  Comparing ‘survfit2.Rout’ to ‘survfit2.Rout.save’ ... OK
+  Running ‘survreg2.R’
+  Comparing ‘survreg2.Rout’ to ‘survreg2.Rout.save’ ... OK
+  Running ‘survtest.R’
+  Comparing ‘survtest.Rout’ to ‘survtest.Rout.save’ ... OK
+  Running ‘testci.R’
+  Comparing ‘testci.Rout’ to ‘testci.Rout.save’ ... OK
+  Running ‘testci2.R’
+  Comparing ‘testci2.Rout’ to ‘testci2.Rout.save’ ... OK
+  Running ‘testnull.R’
+  Comparing ‘testnull.Rout’ to ‘testnull.Rout.save’ ... OK
+  Running ‘testreg.R’
+  Comparing ‘testreg.Rout’ to ‘testreg.Rout.save’ ... OK
+  Running ‘tiedtime.R’
+  Comparing ‘tiedtime.Rout’ to ‘tiedtime.Rout.save’ ... OK
+  Running ‘tt.R’
+  Comparing ‘tt.Rout’ to ‘tt.Rout.save’ ... OK
+  Running ‘turnbull.R’
+  Comparing ‘turnbull.Rout’ to ‘turnbull.Rout.save’ ... OK
+ OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘adjcurve.Rnw’ ... OK
+   ‘compete.Rnw’ ... failed
+   ‘splines.Rnw’ ... OK
+   ‘tests.Rnw’ ... OK
+   ‘timedep.Rnw’ ... OK
+ ERROR
+Errors in running code in vignettes:
+when running code in ‘compete.Rnw’
+  ...
+> temp$fstat <- as.numeric(event)
+
+> temp$msex <- with(temp, 1 * (sex == "M"))
+
+> fgfit1 <- with(temp, crr(etime, fstat, cov1 = cbind(age, 
++     msex, mspike), failcode = 2, cencode = 1, variance = TRUE))
+
+  When sourcing ‘compete.R’:
+Error: could not find function "crr"
+Execution halted
+
+* checking re-building of vignette outputs ... NOTE
+Error in re-building vignettes:
+  ...
+Warning in coxph(Surv(futime, death) ~ group:age2 + sex + strata(group),  :
+  X matrix deemed to be singular; variable 23 24 25
+Loading required package: cmprsk
+Warning in library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘cmprsk’
+
+Error: processing vignette 'compete.Rnw' failed with diagnostics:
+ chunk 15 (label = finegray) 
+Error in eval(expr, envir, enclos) : could not find function "crr"
+Execution halted
+
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 ERROR, 3 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/survival.Rcheck/00check.log’
+for details.
+
+checking package 'boot'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/boot.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘boot/DESCRIPTION’ ... OK
+* this is package ‘boot’ version ‘1.3-16’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking examples ... OK
+* checking differences from ‘boot-Ex.Rout’ to ‘boot-Ex.Rout.save’ ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'cluster'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/cluster.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘cluster/DESCRIPTION’ ... OK
+* this is package ‘cluster’ version ‘2.0.1’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Packages unavailable to check Rd xrefs: ‘mvoutlier’, ‘fpc’, ‘ellipse’, ‘sfsmisc’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘agnes-ex.R’
+  Comparing ‘agnes-ex.Rout’ to ‘agnes-ex.Rout.save’ ... OK
+  Running ‘clara-NAs.R’
+  Comparing ‘clara-NAs.Rout’ to ‘clara-NAs.Rout.save’ ... OK
+  Running ‘clara-ex.R’
+  Running ‘clara.R’
+  Comparing ‘clara.Rout’ to ‘clara.Rout.save’ ... OK
+  Running ‘clusplot-out.R’
+  Comparing ‘clusplot-out.Rout’ to ‘clusplot-out.Rout.save’ ... OK
+  Running ‘daisy-ex.R’
+  Comparing ‘daisy-ex.Rout’ to ‘daisy-ex.Rout.save’ ... OK
+  Running ‘diana-boots.R’
+  Running ‘diana-ex.R’
+  Comparing ‘diana-ex.Rout’ to ‘diana-ex.Rout.save’ ... OK
+  Running ‘ellipsoid-ex.R’
+  Comparing ‘ellipsoid-ex.Rout’ to ‘ellipsoid-ex.Rout.save’ ... OK
+  Running ‘fanny-ex.R’
+  Running ‘mona.R’
+  Comparing ‘mona.Rout’ to ‘mona.Rout.save’ ... OK
+  Running ‘pam.R’
+  Comparing ‘pam.Rout’ to ‘pam.Rout.save’ ... OK
+  Running ‘silhouette-default.R’
+  Comparing ‘silhouette-default.Rout’ to ‘silhouette-default.Rout.save’ ... OK
+  Running ‘sweep-ex.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 2 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/cluster.Rcheck/00check.log’
+for details.
+
+checking package 'codetools'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/codetools.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘codetools/DESCRIPTION’ ... OK
+* this is package ‘codetools’ version ‘0.2-11’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘tests.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: OK
+
+checking package 'foreign'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/foreign.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘foreign/DESCRIPTION’ ... OK
+* this is package ‘foreign’ version ‘0.8-63’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘S3.R’
+  Comparing ‘S3.Rout’ to ‘S3.Rout.save’ ... OK
+  Running ‘arff.R’
+  Comparing ‘arff.Rout’ to ‘arff.Rout.save’ ... OK
+  Running ‘download.R’
+  Running ‘minitab.R’
+  Comparing ‘minitab.Rout’ to ‘minitab.Rout.save’ ... OK
+  Running ‘mval_bug.R’
+  Comparing ‘mval_bug.Rout’ to ‘mval_bug.Rout.save’ ... OK
+  Running ‘octave.R’
+  Comparing ‘octave.Rout’ to ‘octave.Rout.save’ ... OK
+  Running ‘sas.R’
+  Running ‘spss.R’
+  Comparing ‘spss.Rout’ to ‘spss.Rout.save’ ... OK
+  Running ‘stata.R’
+  Comparing ‘stata.Rout’ to ‘stata.Rout.save’ ...376,385c376,385
+< 1  2014-01-23 20:07:16 2014-01-23 14:07:16 2014-01-23 14:07:16 2014-01-23
+< 2  2014-01-23 20:07:17 2014-01-23 14:07:17 2014-01-23 14:07:17 2014-01-23
+< 3  2014-01-23 20:07:18 2014-01-23 14:07:18 2014-01-23 14:07:18 2014-01-23
+< 4  2014-01-23 20:07:19 2014-01-23 14:07:19 2014-01-23 14:07:19 2014-01-23
+< 5  2014-01-23 20:07:20 2014-01-23 14:07:20 2014-01-23 14:07:20 2014-01-23
+< 6  2014-01-23 20:07:21 2014-01-23 14:07:21 2014-01-23 14:07:21 2014-01-23
+< 7  2014-01-23 20:07:22 2014-01-23 14:07:22 2014-01-23 14:07:22 2014-01-23
+< 8  2014-01-23 20:07:23 2014-01-23 14:07:23 2014-01-23 14:07:23 2014-01-23
+< 9  2014-01-23 20:07:24 2014-01-23 14:07:24 2014-01-23 14:07:24 2014-01-23
+< 10 2014-01-23 20:07:25 2014-01-23 14:07:25 2014-01-23 14:07:25 2014-01-23
+---
+> 1  2014-01-23 20:07:16 2014-01-23 20:07:16 2014-01-23 20:07:16 2014-01-23
+> 2  2014-01-23 20:07:17 2014-01-23 20:07:17 2014-01-23 20:07:17 2014-01-23
+> 3  2014-01-23 20:07:18 2014-01-23 20:07:18 2014-01-23 20:07:18 2014-01-23
+> 4  2014-01-23 20:07:19 2014-01-23 20:07:19 2014-01-23 20:07:19 2014-01-23
+> 5  2014-01-23 20:07:20 2014-01-23 20:07:20 2014-01-23 20:07:20 2014-01-23
+> 6  2014-01-23 20:07:21 2014-01-23 20:07:21 2014-01-23 20:07:21 2014-01-23
+> 7  2014-01-23 20:07:22 2014-01-23 20:07:22 2014-01-23 20:07:22 2014-01-23
+> 8  2014-01-23 20:07:23 2014-01-23 20:07:23 2014-01-23 20:07:23 2014-01-23
+> 9  2014-01-23 20:07:24 2014-01-23 20:07:24 2014-01-23 20:07:24 2014-01-23
+> 10 2014-01-23 20:07:25 2014-01-23 20:07:25 2014-01-23 20:07:25 2014-01-23
+  Running ‘testEmpty.R’
+  Comparing ‘testEmpty.Rout’ to ‘testEmpty.Rout.save’ ... OK
+  Running ‘writeForeignSPSS.R’
+  Comparing ‘writeForeignSPSS.Rout’ to ‘writeForeignSPSS.Rout.save’ ... OK
+  Running ‘xport.R’
+  Comparing ‘xport.Rout’ to ‘xport.Rout.save’ ... OK
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/foreign.Rcheck/00check.log’
+for details.
+
+checking package 'KernSmooth'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/KernSmooth.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘KernSmooth/DESCRIPTION’ ... OK
+* this is package ‘KernSmooth’ version ‘2.23-14’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘bkfe.R’
+ OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/KernSmooth.Rcheck/00check.log’
+for details.
+
+checking package 'rpart'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/rpart.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘rpart/DESCRIPTION’ ... OK
+* this is package ‘rpart’ version ‘4.1-9’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking ‘build’ directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Package unavailable to check Rd xrefs: ‘tree’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking sizes of PDF files under ‘inst/doc’ ... OK
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking differences from ‘rpart-Ex.Rout’ to ‘rpart-Ex.Rout.save’ ... OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ...
+  Running ‘backticks.R’
+  Comparing ‘backticks.Rout’ to ‘backticks.Rout.save’ ... OK
+  Running ‘cost.R’
+  Comparing ‘cost.Rout’ to ‘cost.Rout.save’ ... OK
+  Running ‘cptest.R’
+  Comparing ‘cptest.Rout’ to ‘cptest.Rout.save’ ... OK
+  Running ‘priors.R’
+  Comparing ‘priors.Rout’ to ‘priors.Rout.save’ ... OK
+  Running ‘rescale.R’
+  Comparing ‘rescale.Rout’ to ‘rescale.Rout.save’ ... OK
+  Running ‘testall.R’
+  Comparing ‘testall.Rout’ to ‘testall.Rout.save’ ... OK
+  Running ‘treble.R’
+  Comparing ‘treble.Rout’ to ‘treble.Rout.save’ ... OK
+  Running ‘treble2.R’
+  Comparing ‘treble2.Rout’ to ‘treble2.Rout.save’ ... OK
+  Running ‘treble3.R’
+  Comparing ‘treble3.Rout’ to ‘treble3.Rout.save’ ... OK
+  Running ‘treble4.R’
+  Comparing ‘treble4.Rout’ to ‘treble4.Rout.save’ ... OK
+  Running ‘usersplits.R’
+  Comparing ‘usersplits.Rout’ to ‘usersplits.Rout.save’ ... OK
+  Running ‘xpred1.R’
+  Comparing ‘xpred1.Rout’ to ‘xpred1.Rout.save’ ... OK
+  Running ‘xpred2.R’
+  Comparing ‘xpred2.Rout’ to ‘xpred2.Rout.save’ ... OK
+ OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in ‘inst/doc’ ... OK
+* checking running R code from vignettes ...
+   ‘longintro.Rnw’ ... OK
+   ‘usercode.Rnw’ ... OK
+ OK
+* checking re-building of vignette outputs ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 2 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/rpart.Rcheck/00check.log’
+for details.
+
+checking package 'class'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/class.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘class/DESCRIPTION’ ... OK
+* this is package ‘class’ version ‘7.3-12’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/class.Rcheck/00check.log’
+for details.
+
+checking package 'nnet'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/nnet.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘nnet/DESCRIPTION’ ... OK
+* this is package ‘nnet’ version ‘7.3-9’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/nnet.Rcheck/00check.log’
+for details.
+
+checking package 'spatial'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/spatial.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘spatial/DESCRIPTION’ ... OK
+* this is package ‘spatial’ version ‘7.3-9’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking differences from ‘spatial-Ex.Rout’ to ‘spatial-Ex.Rout.save’ ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 1 NOTE
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/spatial.Rcheck/00check.log’
+for details.
+
+checking package 'mgcv'
+* using log directory ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/mgcv.Rcheck’
+* using R Under development (unstable) (2015-03-19 r67716)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘mgcv/DESCRIPTION’ ... OK
+* this is package ‘mgcv’ version ‘1.8-5’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* skipping installation test
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... NOTE
+Package unavailable to check Rd xrefs: ‘gam’
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... OK
+* checking for GNU extensions in Makefiles ... OK
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking compiled code ... NOTE
+Note: information on .o files is not available
+* checking examples ... OK
+* checking PDF version of manual ... OK
+* DONE
+
+Status: 2 NOTEs
+See
+  ‘/home/jeffrey/Projects/R/R-Array-Hash/tests/mgcv.Rcheck/00check.log’
+for details.
+
+make[1]: Leaving directory `/home/jeffrey/Projects/R/R-Array-Hash/tests'
