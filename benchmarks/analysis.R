@@ -7,6 +7,8 @@ for (i in 1:length(oldlevels)){
     oldlevels[i] <- 'R-Array-Hash'
   else if (grepl('Revo',oldlevels[i])) 
     oldlevels[i] <- 'Revo-R'
+  else if (grepl('vertica',oldlevels[i])) 
+    oldlevels[i] <- 'HP-R'
 }
 levels(results$progname) <- oldlevels
 

@@ -2,9 +2,9 @@
 
 Construction and search of a hashed R environment were measured against
 various data sets. Also, the memory size of the hash table was measured
-by using calls to the garbage collector as a proxy.  Three versions
-of R were tested with three data sets and ten hash sizes ranging from
-2^10 to 2^19. Also five runs of each were performed for a total of 450
+by using calls to the garbage collector as a proxy.  Four versions
+of R were tested with three data sets and six hash sizes ranging from
+2^10 to 2^15. Also 3 runs of each were performed for a total of 216
 independent tests.
 
 The benchmark was set up similarly to the design in Nikolas Askitis and Justin Zobel's paper ["Redesigning the String Hash Table, Burst Trie, and BST to Exploit Cache."](http://dl.acm.org/citation.cfm?id=1921704).
@@ -88,9 +88,22 @@ Finally,
 
 # Results
 
-Results were promising, with R-Array-Hash construction and search of a one million DISTINCT dataset performing nearly 40% faster than a comparative R-devel, and roughly 60% faster than Revolution R Enterprise.
+Results are very promising, with R-Array-Hash construction and search of a one million DISTINCT dataset performing faster than a comparative R-devel at SVN revision 67716, faster than Revolution R Enterprise 7.3.0, and faster that HP's new Distributed R.
 
-Results were performed in single user mode on a DELL PRECISION M6800 running Redhat Enterprise Linux version 6 with a 4 core Intel i7-4800MQ processer and clock speed of 2.70GHz, 8 GB main memory, and a hybrid SSD. 
+Tests were performed in single user mode on a DELL PRECISION M6800 running Redhat Enterprise Linux version 6 with a 4 core Intel i7-4800MQ processer and clock speed of 2.70GHz, 8 GB main memory, and a hybrid SSD. 
 
-* [results.RData](results.RData): R data file with 450 results along with info about each R.
+* [results.RData](results.RData): R data file with 216 results.
 * [analysis.R](analysis.R): Analysis of the results.
+* [plots.R](plots.R): created the below plots.
+
+## DISTINCT.1mil
+
+![Plots with DISTINCT.1mil Data Set](DISTINCT.1mil.png)
+
+## DISTINCT.500thou
+
+![Plots with DISTINCT.500thou Data Set](DISTINCT.500thou.png)
+
+## SKEW.1mil
+
+![Plots with SKEW.1mil Data Set](SKEW.1mil)
