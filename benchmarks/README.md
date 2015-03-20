@@ -96,6 +96,8 @@ Tests were performed in single user mode on a DELL PRECISION M6800 running Redha
 * [analysis.R](analysis.R): Analysis of the results.
 * [plots.R](plots.R): created the below plots.
 
+For the plots below, the Y axis is time in seconds when the label is missing, and the X axis is the size of the hash table (and log scaled).
+
 ## DISTINCT.1mil
 
 ![Plots with DISTINCT.1mil Data Set](DISTINCT.1mil.png)
