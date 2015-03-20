@@ -106,4 +106,4 @@ Tests were performed in single user mode on a DELL PRECISION M6800 running Redha
 
 ## SKEW.1mil
 
-![Plots with SKEW.1mil Data Set](SKEW.1mil)
+![Plots with SKEW.1mil Data Set](SKEW.1mil.png)
