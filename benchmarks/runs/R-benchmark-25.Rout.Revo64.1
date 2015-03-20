@@ -1,0 +1,42 @@
+Loading required package: Matrix
+
+
+   R Benchmark 2.5
+   ===============
+Number of times each test is run__________________________:  3
+
+   I. Matrix calculation
+   ---------------------
+Creation, transp., deformation of a 2500x2500 matrix (sec):  0.709333333333333 
+2400x2400 normal distributed random matrix ^1000____ (sec):  0.533666666666666 
+Sorting of 7,000,000 random values__________________ (sec):  0.617333333333334 
+2800x2800 cross-product matrix (b = a' * a)_________ (sec):  0.186666666666666 
+Linear regr. over a 3000x3000 matrix (c = a \ b')___ (sec):  0.133000000000001 
+                      --------------------------------------------
+                 Trimmed geom. mean (2 extremes eliminated):  0.394716722204069 
+
+   II. Matrix functions
+   --------------------
+FFT over 2,400,000 random values____________________ (sec):  0.294666666666667 
+Eigenvalues of a 640x640 random matrix______________ (sec):  0.237000000000002 
+Determinant of a 2500x2500 random matrix____________ (sec):  0.138 
+Cholesky decomposition of a 3000x3000 matrix________ (sec):  0.125666666666667 
+Inverse of a 1600x1600 random matrix________________ (sec):  0.114000000000001 
+                      --------------------------------------------
+                Trimmed geom. mean (2 extremes eliminated):  0.160182785895377 
+
+   III. Programmation
+   ------------------
+3,500,000 Fibonacci numbers calculation (vector calc)(sec):  0.521666666666667 
+Creation of a 3000x3000 Hilbert matrix (matrix calc) (sec):  0.146000000000001 
+Grand common divisors of 400,000 pairs (recursion)__ (sec):  0.818333333333332 
+Creation of a 500x500 Toeplitz matrix (loops)_______ (sec):  0.273333333333331 
+Escoufier's method on a 45x45 matrix (mixed)________ (sec):  0.311 
+                      --------------------------------------------
+                Trimmed geom. mean (2 extremes eliminated):  0.353955521358073 
+
+
+Total time for all 15 tests_________________________ (sec):  5.15966666666667 
+Overall mean (sum of I, II and III trimmed means/3)_ (sec):  0.281805860057309 
+                      --- End of test ---
+
