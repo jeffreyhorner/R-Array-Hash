@@ -1,5 +1,6 @@
 language: c
 
 before_install:
-  - ./tools/rsync-recommended
-  - sudo apt-get install -y --no-install-recommends bash-completion bison debhelper default-jdk g++ gcc gfortran groff-base libblas-dev libbz2-dev libcairo2-dev libcurl4-openssl-dev libjpeg-dev liblapack-dev liblzma-dev libncurses5-dev libpango1.0-dev libpcre3-dev libpng-dev libreadline-dev libtiff-dev libx11-dev libxt-dev mpack subversion tcl-dev texinfo texlive-base texlive-extra-utils texlive-fonts-extra texlive-fonts-recommended texlive-generic-recommended texlive-latex-base texlive-latex-extra texlive-latex-recommended tk-dev x11proto-core-dev xauth xdg-utils xfonts-base xvfb zlib1g-dev
+  - ls -la
+
+script: /bin/true
