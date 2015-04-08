@@ -108,8 +108,7 @@ svnonly:
 	  touch non-tarball ; \
 	  if [ -d "$(top_builddir)/.git" ]; then \
 	      echo -n 'Revision: ' > SVN-REVISION-tmp; \
-	      git log --format=%B \
-	        | grep "^git-svn-id" | head -1   \
+	      git log | grep git-svn-id | head -1   \
 	        | sed -E 's/^ *git-svn-id: https:\/\/svn.r-project.org\/R\/[^@]*@([0-9]+).*/\1/' \
 	        >> SVN-REVISION-tmp ;\
 	      echo -n 'Last Changed Date: ' >>  SVN-REVISION-tmp ;\
