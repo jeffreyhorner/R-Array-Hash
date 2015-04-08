@@ -1,5 +1,7 @@
 # R with Array Hashes
 
+[![Build Status](https://travis-ci.org/jeffreyhorner/R-Array-Hash.svg?branch=master)](https://travis-ci.org/jeffreyhorner/R-Array-Hash)
+
 This project replaces R's hash tables for environments and the global
 variable cache with Array Hash Tables for Integer Keys[1]. Also, the
 string cache and symbol table are implemented with an Array Hash Table
