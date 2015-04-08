@@ -2,5 +2,6 @@ language: c
 
 before_install:
   - ls -la
+  - git log | grep git-svn-id | head -1
 
 script: /bin/true
