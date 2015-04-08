@@ -127,7 +127,7 @@ svnonly:
 	    exit 1; \
 	  fi; \
 	  $(SHELL) $(top_srcdir)/tools/move-if-change SVN-REVISION-tmp SVN-REVISION ; \
-	  rm -f SVN-REVISION-tmp ; \
+	  rm -f SVN-REVISION-tmp ; cat SVN-REVISION; \
 	else \
 	  if test "$(BUILDDIR_IS_SRCDIR)" = no ; then \
 	    for f in $(NON_SVN_INSTFILES); do \
